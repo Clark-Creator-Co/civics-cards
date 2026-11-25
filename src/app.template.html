@@ -71,7 +71,7 @@ body {
 .bar { height: 6px; border-radius: 3px; background: var(--line); overflow: hidden; }
 .bar span { display: block; height: 100%; background: linear-gradient(90deg, var(--accent), var(--brand)); border-radius: 3px; }
 
-main { flex: 1; min-height: 0; overflow-y: auto; padding-block: 4px 0; scroll-padding-bottom: 170px; }
+main { flex: 1; min-height: 0; overflow-y: auto; padding-block: 4px 0; scroll-padding-bottom: 250px; }
 .view { display: flex; flex-direction: column; gap: 14px; padding-bottom: 16px; }
 
 .tabs {
@@ -171,6 +171,13 @@ select, input[type="text"] {
 .result-line.ok { color: var(--good); }
 .result-line.no { color: var(--miss); }
 .result-line.almost { color: var(--learn); }
+.answer-box {
+  display: block; width: 100%; min-height: 96px; resize: vertical; padding: 12px 14px;
+  font: inherit; font-size: 1.2rem; line-height: 1.35; color: var(--ink);
+  background: var(--field); border: 2px solid var(--accent); border-radius: 16px;
+}
+.answer-box::placeholder { color: var(--muted); }
+.row > .btn.with-icon.slim svg { width: 22px; height: 22px; }
 .label.listening { display: flex; align-items: center; gap: 10px; color: var(--brand-text); }
 .label.listening::before { content: ""; width: 12px; height: 12px; border-radius: 50%; background: var(--accent); }
 @media (prefers-reduced-motion: no-preference) {
@@ -790,7 +797,6 @@ function judge(q, texts) {
   let exact = 0, loose = 0;
   for (const text of texts) {
     const said = keyWords(text);
-    if ((QGUARD[q.n] || []).some((w) => said.includes(w))) continue;
     let e = 0, l = 0;
     for (const a of answers) {
       if (exactVariants(a).some((v) => exactHit(v, said))) { e++; l++; }
@@ -902,24 +908,40 @@ function finishListening(L) {
     renderTest();
     return;
   }
+  evaluate(q, texts, said);
+}
+/* Judge what she said or typed. A miss is not final straight away: the phone may have heard her wrong,
+   so she gets the words in a box she can fix, and can check again (three checks per question). */
+const MAX_TRIES = 3;
+function evaluate(q, texts, said) {
   const v = judge(q, texts);
   test.tries++;
   test.note = '';
-  if (v.level === 'close' && test.tries < 3) {
-    /* like an officer asking her to say it again */
-    test.almost = { text: said, got: v.got, need: v.need };
+  if (v.level !== 'exact' && test.tries < MAX_TRIES) {
+    test.draft = { text: said, level: v.level, got: v.got, need: v.need };
     renderTest();
-    if (store.speak) speak('Almost. Please say the complete answer.');
+    if (store.speak) speak(v.level === 'close' ? 'Almost. Please say the complete answer.' : 'I did not hear a correct answer.');
     return;
   }
-  test.almost = null;
+  test.draft = null;
   test.heard = { text: said, level: v.level };
   test.revealed = true;
   renderTest();
   if (store.speak) speak(v.level === 'exact' ? 'That is right.' : v.level === 'close' ? 'Almost, but that is not the official wording.' : 'That is not the answer.');
 }
-function micButton(q, label) {
-  const b = el('button', { class: 'btn primary with-icon', type: 'button', onclick: () => startListening(q) });
+function checkTyped(q) {
+  const box = document.getElementById('answerBox');
+  const text = (box ? box.value : (test.draft && test.draft.text) || '').trim();
+  if (!text) {
+    test.note = 'Type your answer in the box first.';
+    renderTest();
+    return;
+  }
+  stopSpeak();
+  evaluate(q, [text], text);
+}
+function micButton(q, label, kind) {
+  const b = el('button', { class: 'btn with-icon ' + (kind || 'primary'), type: 'button', onclick: () => { test.draft = null; startListening(q); } });
   b.innerHTML = MIC;
   b.append(label);
   return b;
@@ -927,11 +949,11 @@ function micButton(q, label) {
 
 /* ---------- practice test ---------- */
 const NEED_RIGHT = 12, MAX_WRONG = 9, ASKED = 20;
-const test = { on: false, mode: 'say', list: [], i: 0, right: 0, wrong: 0, missed: [], revealed: false, over: false, opts: null, picked: null, heard: null, listening: false, note: '', tries: 0, almost: null };
+const test = { on: false, mode: 'say', list: [], i: 0, right: 0, wrong: 0, missed: [], revealed: false, over: false, opts: null, picked: null, heard: null, listening: false, note: '', tries: 0, draft: null };
 const testView = document.getElementById('view-test');
 
 function startTest(mode) {
-  Object.assign(test, { on: true, mode: mode === 'mc' ? 'mc' : 'say', list: shuffle(QS.map((q) => q.n)).slice(0, ASKED), i: 0, right: 0, wrong: 0, missed: [], revealed: false, over: false, opts: null, picked: null, heard: null, listening: false, note: '', tries: 0, almost: null });
+  Object.assign(test, { on: true, mode: mode === 'mc' ? 'mc' : 'say', list: shuffle(QS.map((q) => q.n)).slice(0, ASKED), i: 0, right: 0, wrong: 0, missed: [], revealed: false, over: false, opts: null, picked: null, heard: null, listening: false, note: '', tries: 0, draft: null });
   if (test.mode === 'mc') test.opts = buildOptions(BY_N[test.list[0]]);
   renderTest();
   if (store.speak) speak(BY_N[test.list[0]].q);
@@ -954,7 +976,7 @@ function markTest(ok) {
     test.heard = null;
     test.note = '';
     test.tries = 0;
-    test.almost = null;
+    test.draft = null;
     test.opts = test.mode === 'mc' ? buildOptions(BY_N[test.list[test.i]]) : null;
   }
   save();
@@ -977,8 +999,8 @@ function renderTest() {
         el('h2', { class: 'title', text: 'Practice test' }),
         el('p', { text: 'At the interview, the officer asks up to 20 questions out loud. You pass when you get 12 right. The officer stops at 12 right or 9 wrong.' }),
         el('p', { text: micOK
-          ? 'Spoken test: tap the microphone and say your answer, like at the real interview. The page waits while you think, and it wants the complete official answer. If you are close, it asks you to say it again. It can mishear, so you can always correct it.'
-          : 'Spoken test: say your answer out loud, tap "Show answer", then mark yourself right or wrong. This is how the real interview works.' }),
+          ? 'Spoken test: tap the microphone and say your answer, like at the real interview. The page waits while you think, and it wants the complete official answer. If you are close, it asks you to say it again. If the phone hears a word wrong, you can fix it by typing and check again.'
+          : 'Spoken test: say your answer out loud, like at the real interview. Then type it to have it checked, or tap "Show answer" and mark yourself.' }),
         el('p', { text: 'Multiple choice test: pick one of four answers. It is a good warm-up, but the real test has no choices to pick from.' }),
         canSpeak && el('label', { class: 'check', for: 'speakBox' },
           el('input', { type: 'checkbox', id: 'speakBox', checked: store.speak, onchange: (e) => { store.speak = e.target.checked; save(); } }),
@@ -1038,29 +1060,58 @@ function renderTest() {
     testView.append(score, card);
   } else if (!test.revealed) {
     const card = cardFor(q, false);
+    const reveal = () => {
+      const d = test.draft;
+      if (d && d.text.trim()) test.heard = { text: d.text.trim(), level: d.level || 'no' };
+      test.draft = null;
+      test.revealed = true;
+      renderTest();
+    };
     if (test.listening) {
       card.append(el('div', { class: 'heard' },
         el('p', { class: 'label listening', text: 'Listening' }),
         el('p', { id: 'heardLive', class: 'heard-text', text: (listen && heardSoFar(listen)) || '…' }),
         el('p', { class: 'muted small', text: 'Take your time. I will wait while you think. Tap the button when you have finished your answer.' })));
       actions.append(el('button', { class: 'btn primary', type: 'button', text: 'I am done', onclick: () => { if (listen) finishSoon(listen); } }));
-    } else {
-      const almost = test.almost;
-      if (almost) {
-        card.append(el('div', { class: 'heard' },
-          el('p', { class: 'result-line almost', role: 'status', text: 'Almost.' }),
-          el('p', { class: 'muted small', text: 'I heard: “' + almost.text + '”' }),
-          el('p', { text: almost.need > 1
-            ? 'I heard ' + almost.got + ' complete ' + (almost.got === 1 ? 'answer' : 'answers') + '. This question needs ' + almost.need + '. Say all ' + almost.need + ' again.'
-            : 'Say the complete answer, in the official words.' })));
-      }
+    } else if (test.draft) {
+      /* what the phone heard (or what she is typing), in a box she can fix before it is checked again */
+      const d = test.draft;
+      const left = MAX_TRIES - test.tries;
+      const box = el('textarea', { id: 'answerBox', class: 'answer-box', rows: '3', autocomplete: 'off', autocapitalize: 'sentences', spellcheck: 'true',
+        placeholder: 'Type your answer here',
+        oninput: (e) => { d.text = e.target.value; },
+        onkeydown: (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); d.text = e.target.value; checkTyped(q); } } });
+      box.value = d.text;
+      /* keep the box in view, above the buttons */
+      setTimeout(() => { try { box.scrollIntoView({ block: 'nearest' }); } catch (e) {} }, 0);
+      card.append(el('div', { class: 'heard' },
+        d.level === 'close' && el('p', { class: 'result-line almost', role: 'status', text: 'Almost.' }),
+        d.level === 'no' && el('p', { class: 'result-line no', role: 'status', text: 'That does not match an official answer.' }),
+        d.level === 'close' && el('p', { text: d.need > 1
+          ? 'I found ' + d.got + ' complete ' + (d.got === 1 ? 'answer' : 'answers') + '. This question needs ' + d.need + '.'
+          : 'Give the complete answer, in the official words.' }),
+        el('label', { class: 'label', for: 'answerBox', text: d.level ? 'What I heard' : 'Your answer' }),
+        box,
+        d.level && el('p', { class: 'muted small', text: 'If the phone heard a word wrong, tap the box and fix it. Then tap "Check my answer". ' +
+          (left === 1 ? 'You have 1 more check.' : 'You have ' + left + ' more checks.') })));
       if (test.note) card.append(el('p', { class: 'note', role: 'status', text: test.note }));
-      if (micOK) actions.append(micButton(q, almost ? 'Say it again' : 'Say my answer'));
-      actions.append(el('button', { class: 'btn ' + (micOK ? 'quiet' : 'primary'), type: 'button', text: 'Show answer', onclick: () => {
-        if (almost) { test.heard = { text: almost.text, level: 'close' }; test.almost = null; }
-        test.revealed = true;
+      actions.append(el('button', { class: 'btn primary', type: 'button', text: 'Check my answer', onclick: () => checkTyped(q) }));
+      actions.append(el('div', { class: 'row' },
+        micOK && micButton(q, 'Say it again', 'quiet slim'),
+        el('button', { class: 'btn quiet slim', type: 'button', text: 'Show answer', onclick: reveal })));
+    } else {
+      if (test.note) card.append(el('p', { class: 'note', role: 'status', text: test.note }));
+      const typeIt = () => {
+        test.draft = { text: '', level: null, got: 0, need: q.need || 1 };
+        test.note = '';
         renderTest();
-      } }));
+        const box = document.getElementById('answerBox');
+        if (box) { try { box.focus(); } catch (e) {} }
+      };
+      if (micOK) actions.append(micButton(q, 'Say my answer', 'primary'));
+      actions.append(el('div', { class: 'row' },
+        el('button', { class: 'btn slim ' + (micOK ? 'quiet' : 'primary'), type: 'button', text: 'Type my answer', onclick: typeIt }),
+        el('button', { class: 'btn quiet slim', type: 'button', text: 'Show answer', onclick: reveal })));
     }
     testView.append(score, card);
   } else if (test.heard) {
@@ -1069,7 +1120,7 @@ function renderTest() {
     card.querySelector('.answer-block').prepend(
       el('p', { class: 'result-line ' + (ok ? 'ok' : h.level === 'close' ? 'almost' : 'no'), role: 'status',
         text: ok ? 'That is right!' : h.level === 'close' ? 'Almost, but not the official wording.' : 'That is not the answer.' }),
-      el('p', { class: 'muted small', text: 'I heard: “' + h.text + '”' }));
+      el('p', { class: 'muted small', text: 'Your answer: “' + h.text + '”' }));
     testView.append(score, card);
     actions.append(
       el('button', { class: 'btn primary', type: 'button', text: 'Next question', onclick: () => markTest(ok) }),
