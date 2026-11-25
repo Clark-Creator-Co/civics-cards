@@ -1,0 +1,1085 @@
+<title>Citizenship Civics Cards</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bitter:wght@600;700&display=swap">
+<style>
+/* Layout: one phone-sized column. A slim header with her running tally, one large card in the middle, three tabs along the bottom. */
+:root {
+  --bg: #fff6fa;
+  --glow-1: rgba(255, 158, 200, 0.40);
+  --glow-2: rgba(255, 205, 178, 0.32);
+  --glow-3: rgba(216, 184, 255, 0.30);
+  --surface: rgba(255, 255, 255, 0.55);
+  --glass-edge: rgba(255, 255, 255, 0.9);
+  --glass-shadow: 0 10px 34px rgba(190, 70, 130, 0.13);
+  --veil: rgba(255, 244, 249, 0.74);
+  --field: rgba(255, 255, 255, 0.72);
+  --ink: #1d1b3a;
+  --muted: #5c5470;
+  --line: rgba(110, 50, 90, 0.2);
+  --brand: #ad1f6b;
+  --brand-2: #c93482;
+  --brand-glow: rgba(200, 50, 130, 0.28);
+  --brand-ink: #ffffff;
+  --brand-text: #96185c;
+  --accent: #e2579c;
+  --answer-bg: rgba(255, 255, 255, 0.62);
+  --good: #1c7046;
+  --good-bg: #dcf2e6;
+  --on-good: #ffffff;
+  --learn: #8a5200;
+  --learn-bg: #fcefd4;
+  --miss: #a8321a;
+  --miss-bg: #fce8e3;
+  --font-display: "Bitter", Georgia, "Times New Roman", serif;
+  --font-body: "Atkinson Hyperlegible", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #170f1e; --glow-1: rgba(226, 72, 150, 0.30); --glow-2: rgba(255, 140, 120, 0.13); --glow-3: rgba(130, 84, 220, 0.24); --surface: rgba(255, 255, 255, 0.07); --glass-edge: rgba(255, 255, 255, 0.16); --glass-shadow: 0 10px 34px rgba(0, 0, 0, 0.35); --veil: rgba(23, 15, 30, 0.74); --field: rgba(255, 255, 255, 0.09); --ink: #f7eef6; --muted: #c6b6ca; --line: rgba(255, 255, 255, 0.18);
+    --brand: #ff8fc6; --brand-2: #ffb1d8; --brand-glow: rgba(255, 110, 180, 0.25); --brand-ink: #2b0f20; --brand-text: #ffabd4; --accent: #ff7ab8; --answer-bg: rgba(255, 255, 255, 0.08);
+    --good: #72d3a2; --good-bg: #143526; --on-good: #0d1524; --learn: #f2c166; --learn-bg: #3a2c10; --miss: #ffa093; --miss-bg: #3f1b16;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #170f1e; --glow-1: rgba(226, 72, 150, 0.30); --glow-2: rgba(255, 140, 120, 0.13); --glow-3: rgba(130, 84, 220, 0.24); --surface: rgba(255, 255, 255, 0.07); --glass-edge: rgba(255, 255, 255, 0.16); --glass-shadow: 0 10px 34px rgba(0, 0, 0, 0.35); --veil: rgba(23, 15, 30, 0.74); --field: rgba(255, 255, 255, 0.09); --ink: #f7eef6; --muted: #c6b6ca; --line: rgba(255, 255, 255, 0.18);
+  --brand: #ff8fc6; --brand-2: #ffb1d8; --brand-glow: rgba(255, 110, 180, 0.25); --brand-ink: #2b0f20; --brand-text: #ffabd4; --accent: #ff7ab8; --answer-bg: rgba(255, 255, 255, 0.08);
+  --good: #72d3a2; --good-bg: #143526; --on-good: #0d1524; --learn: #f2c166; --learn-bg: #3a2c10; --miss: #ffa093; --miss-bg: #3f1b16;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body {
+  background:
+    radial-gradient(70% 46% at 8% 0%, var(--glow-1), transparent 72%),
+    radial-gradient(60% 42% at 100% 34%, var(--glow-2), transparent 72%),
+    radial-gradient(80% 50% at 40% 100%, var(--glow-3), transparent 72%),
+    var(--bg);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 18px;
+  line-height: 1.45;
+}
+.app { height: 100%; max-width: 620px; margin: 0 auto; display: flex; flex-direction: column; }
+.gutter { padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+
+.top { padding-block: 12px 10px; display: flex; flex-direction: column; gap: 8px; }
+.top-row { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+.top h1 { font-family: var(--font-display); font-size: 1.2rem; line-height: 1.2; margin: 0; }
+.tally { color: var(--muted); font-size: 0.95rem; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.bar { height: 6px; border-radius: 3px; background: var(--line); overflow: hidden; }
+.bar span { display: block; height: 100%; background: linear-gradient(90deg, var(--accent), var(--brand)); border-radius: 3px; }
+
+main { flex: 1; min-height: 0; overflow-y: auto; padding-block: 4px 0; scroll-padding-bottom: 170px; }
+.view { display: flex; flex-direction: column; gap: 14px; padding-bottom: 16px; }
+
+.tabs {
+  display: flex; background: var(--surface); border-top: 1px solid var(--glass-edge);
+  -webkit-backdrop-filter: blur(18px) saturate(140%); backdrop-filter: blur(18px) saturate(140%);
+}
+.tabs button {
+  flex: 1; min-width: 0; min-height: 60px; padding: 6px 4px;
+  font: inherit; font-weight: 700; font-size: 1rem;
+  color: var(--muted); background: none; border: 0; border-top: 4px solid transparent; cursor: pointer;
+}
+.tabs button[aria-selected="true"] { color: var(--brand-text); border-top-color: var(--accent); }
+
+:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+
+h2, h3, p { margin: 0; }
+.title { font-family: var(--font-display); font-size: 1.5rem; line-height: 1.2; text-wrap: balance; }
+.muted { color: var(--muted); }
+.small { font-size: 0.95rem; }
+
+.controls { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; }
+.controls select { flex: 1 1 220px; min-width: 0; }
+select, input[type="text"] {
+  font: inherit; color: var(--ink); background: var(--field);
+  border: 1px solid var(--line); border-radius: 14px;
+  min-height: 50px; padding: 8px 12px; max-width: 100%; width: 100%;
+}
+.check { display: flex; align-items: center; gap: 10px; min-height: 44px; cursor: pointer; }
+.check input { width: 24px; height: 24px; accent-color: var(--brand); flex: none; }
+
+.card {
+  background: var(--surface); border: 1px solid var(--glass-edge); border-radius: 22px;
+  box-shadow: var(--glass-shadow);
+  -webkit-backdrop-filter: blur(18px) saturate(140%); backdrop-filter: blur(18px) saturate(140%);
+  padding: 18px; display: flex; flex-direction: column; gap: 14px;
+}
+.meta { display: flex; justify-content: space-between; gap: 12px; color: var(--muted); font-size: 0.9rem; font-variant-numeric: tabular-nums; }
+.meta span:last-child { text-align: right; }
+.q { font-family: var(--font-display); font-weight: 700; font-size: clamp(1.4rem, 5.8vw, 1.8rem); line-height: 1.25; text-wrap: balance; }
+.listen {
+  align-self: flex-start; display: inline-flex; align-items: center; gap: 8px;
+  min-height: 46px; padding: 6px 14px 6px 10px; border-radius: 23px;
+  font: inherit; font-size: 1rem; font-weight: 700;
+  color: var(--brand-text); background: var(--field); border: 1px solid var(--glass-edge); cursor: pointer;
+  box-shadow: 0 2px 10px var(--brand-glow);
+}
+.listen svg { width: 24px; height: 24px; flex: none; }
+.answer-block { display: flex; flex-direction: column; gap: 10px; border-top: 2px solid var(--accent); padding-top: 14px; }
+.label { font-size: 0.85rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.answers { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 6px; }
+.answers li { background: var(--answer-bg); border-radius: 8px; padding: 9px 12px; font-size: 1.2rem; line-height: 1.3; overflow-wrap: anywhere; }
+.note { background: var(--learn-bg); color: var(--learn); border-radius: 8px; padding: 10px 12px; font-size: 0.98rem; }
+@media (prefers-reduced-motion: no-preference) {
+  .answer-block { animation: reveal 0.22s ease-out; }
+  @keyframes reveal { from { opacity: 0.2; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+}
+
+.actions {
+  position: sticky; bottom: 0; display: flex; flex-direction: column; gap: 8px;
+  margin-inline: -8px; padding: 10px 8px; border-radius: 20px 20px 0 0;
+  background: var(--veil); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px);
+}
+.row { display: flex; gap: 10px; }
+.row > .btn { flex: 1; min-width: 0; }
+.btn {
+  min-height: 58px; padding: 10px 14px; border-radius: 12px; border: 2px solid transparent;
+  font: inherit; font-weight: 700; font-size: 1.1rem; line-height: 1.2; cursor: pointer;
+}
+.btn { border-radius: 16px; }
+.btn.primary { background: linear-gradient(135deg, var(--brand), var(--brand-2)); color: var(--brand-ink); box-shadow: 0 6px 18px var(--brand-glow); }
+.btn.with-icon { display: flex; align-items: center; justify-content: center; gap: 10px; }
+.btn.with-icon svg { width: 26px; height: 26px; flex: none; }
+.btn.good { background: var(--good); color: var(--on-good); }
+.btn.learn { background: var(--learn-bg); color: var(--learn); border-color: var(--learn); }
+.btn.miss { background: var(--miss-bg); color: var(--miss); border-color: var(--miss); }
+.btn.quiet { background: var(--field); color: var(--brand-text); border-color: var(--line); }
+
+.opts { display: flex; flex-direction: column; gap: 10px; }
+.opt {
+  display: flex; align-items: center; gap: 12px; width: 100%; min-height: 58px; padding: 10px 14px;
+  font: inherit; font-size: 1.1rem; line-height: 1.3; text-align: left; color: var(--ink);
+  background: var(--field); border: 2px solid var(--line); border-radius: 16px; cursor: pointer;
+}
+.opt .letter {
+  flex: none; width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center;
+  font-weight: 700; font-size: 0.95rem; color: var(--brand-text); border: 2px solid var(--line);
+}
+.opt .opt-text { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.opt .mark { flex: none; font-weight: 700; font-size: 1.3rem; }
+.opt:disabled { color: var(--ink); cursor: default; }
+.opt:disabled:not(.right):not(.wrong) { opacity: 0.55; }
+.opt.right { background: var(--good-bg); border-color: var(--good); }
+.opt.right .mark, .opt.right .letter { color: var(--good); border-color: var(--good); }
+.opt.wrong { background: var(--miss-bg); border-color: var(--miss); }
+.opt.wrong .mark, .opt.wrong .letter { color: var(--miss); border-color: var(--miss); }
+.result-line { font-family: var(--font-display); font-size: 1.3rem; line-height: 1.25; }
+.result-line.ok { color: var(--good); }
+.result-line.no { color: var(--miss); }
+.heard { display: flex; flex-direction: column; gap: 6px; border-top: 2px solid var(--accent); padding-top: 14px; }
+.heard-text { font-size: 1.2rem; min-height: 1.6em; }
+.btn.slim { min-height: 46px; font-size: 1rem; }
+
+.score { display: flex; flex-direction: column; gap: 10px; }
+.score-line { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.score-line b { min-width: 5.2em; font-variant-numeric: tabular-nums; }
+.pips { display: flex; gap: 5px; flex-wrap: wrap; }
+.pip { width: 15px; height: 15px; border-radius: 50%; border: 2px solid var(--line); }
+.pip.good.on { background: var(--good); border-color: var(--good); }
+.pip.miss.on { background: var(--miss); border-color: var(--miss); }
+
+.verdict { font-family: var(--font-display); font-size: 2rem; line-height: 1.1; }
+.verdict.pass { color: var(--good); }
+.verdict.fail { color: var(--miss); }
+.missed { display: flex; flex-direction: column; gap: 14px; }
+.missed h3 { font-size: 1.05rem; line-height: 1.3; }
+.missed p { color: var(--muted); }
+
+.field { display: flex; flex-direction: column; gap: 6px; }
+.field label { font-weight: 700; line-height: 1.3; }
+.saved { color: var(--good); font-weight: 700; font-size: 0.95rem; }
+.fine { color: var(--muted); font-size: 0.9rem; }
+a { color: var(--brand-text); }
+</style>
+
+<div class="app">
+  <header class="top gutter">
+    <div class="top-row">
+      <h1>Civics Cards</h1>
+      <span class="tally" id="tally">0 of 128 known</span>
+    </div>
+    <div class="bar" aria-hidden="true"><span id="tallyBar" style="width:0%"></span></div>
+  </header>
+
+  <main class="gutter" id="main">
+    <section class="view" id="view-study" aria-labelledby="tab-study">
+      <div class="controls">
+        <select id="deck" aria-label="Which cards to study"></select>
+        <label class="check" for="mix"><input type="checkbox" id="mix"> Mix the order</label>
+      </div>
+      <div id="studyBody" class="view"></div>
+    </section>
+    <section class="view" id="view-test" aria-labelledby="tab-test" hidden></section>
+    <section class="view" id="view-names" aria-labelledby="tab-names" hidden></section>
+  </main>
+
+  <nav class="tabs gutter" role="tablist" aria-label="Sections">
+    <button type="button" role="tab" id="tab-study" aria-selected="true">Study</button>
+    <button type="button" role="tab" id="tab-test" aria-selected="false">Practice test</button>
+    <button type="button" role="tab" id="tab-names" aria-selected="false">Settings</button>
+  </nav>
+</div>
+
+<script>
+const DATA = __DATA__;
+const SUBS = DATA.subs, QS = DATA.qs;
+const BY_N = {};
+for (const q of QS) BY_N[q.n] = q;
+
+/* Answers that depend on who is in office. Checked November 25, 2026, for Woodbury, Minnesota.
+   Several change in January 2027; update the names here then. */
+const CHECKED = 'November 25, 2026';
+const OFFICIALS = {
+  president: { answers: ['Donald Trump', 'Donald J. Trump', 'Trump'] },
+  vp: { answers: ['JD Vance', 'Vance'] },
+  speaker: {
+    answers: ['Mike Johnson', 'Johnson'],
+    note: 'This may change in January 2027. Democrats won the House in November 2026 and chose Hakeem Jeffries as their pick for Speaker. The House votes when the new Congress starts.',
+  },
+  chief: { answers: ['John Roberts', 'John G. Roberts, Jr.', 'Roberts'] },
+  governor: {
+    answers: ['Tim Walz'],
+    note: 'This changes in January 2027. Amy Klobuchar was elected governor in November 2026 and takes office in early January.',
+  },
+  senators: {
+    answers: ['Amy Klobuchar', 'Tina Smith'],
+    note: 'This changes in January 2027. Peggy Flanagan was elected to Tina Smith’s seat. Amy Klobuchar becomes governor, and a new senator will be named for her seat.',
+  },
+  rep: {
+    answers: ['Betty McCollum'],
+    note: 'Most of Woodbury is in District 4 (Betty McCollum). Two Woodbury precincts are in District 2: Angie Craig now, Matt Little from January 2027. Check your address at pollfinder.sos.mn.gov.',
+  },
+  capital: { answers: ['Saint Paul', 'St. Paul'] },
+};
+const NAME_ORDER = ['president', 'vp', 'speaker', 'chief', 'governor', 'senators', 'rep', 'capital'];
+
+/* Wrong choices for the multiple choice test. Each one is clearly wrong for its question. */
+const WRONG_NAMES = {
+  president: ['JD Vance', 'Joe Biden', 'Barack Obama', 'Mike Johnson', 'John Roberts'],
+  vp: ['Kamala Harris', 'Mike Pence', 'Donald Trump', 'Marco Rubio', 'Mike Johnson'],
+  speaker: ['Hakeem Jeffries', 'Nancy Pelosi', 'John Thune', 'Chuck Schumer', 'Kevin McCarthy', 'Mike Johnson'],
+  chief: ['Clarence Thomas', 'Samuel Alito', 'Sonia Sotomayor', 'Amy Coney Barrett', 'Elena Kagan'],
+  governor: ['Mark Dayton', 'Jesse Ventura', 'Betty McCollum', 'Tom Emmer', 'Tim Pawlenty', 'Tim Walz'],
+  senators: ['Tim Walz', 'Betty McCollum', 'Mark Dayton', 'Tom Emmer', 'Ilhan Omar'],
+  rep: ['Tom Emmer', 'Ilhan Omar', 'Tim Walz', 'Pete Stauber', 'Angie Craig'],
+  capital: ['Minneapolis', 'Duluth', 'Rochester', 'Bloomington'],
+};
+const WRONG = {
+  1: ['Monarchy', 'Dictatorship', 'Communist state'],
+  2: ['Declaration of Independence', 'Emancipation Proclamation', 'Articles of Confederation'],
+  3: ['Declares independence from Britain', 'Sets the price of goods', 'Chooses the president'],
+  4: ['Rule by a king', 'Rule by the military', 'Only leaders make decisions'],
+  5: ['Executive orders', 'Presidential vetoes', 'State elections'],
+  6: ['The powers of the president', 'The borders of the states', 'The rights of the government'],
+  7: ['Ten (10)', 'Twenty-one (21)', 'Fifty (50)'],
+  8: ['It created the Supreme Court.', 'It ended the Civil War.', 'It gave women the right to vote.'],
+  9: ['U.S. Constitution', 'Bill of Rights', 'Federalist Papers'],
+  10: ['Monarchy and nobility', 'Equality and monarchy', 'Liberty and dictatorship'],
+  11: ['U.S. Constitution', 'Bill of Rights', 'Emancipation Proclamation'],
+  12: ['Communism', 'Socialism', 'Barter economy'],
+  13: ['The president is above the law.', 'Only citizens must follow the law.', 'Judges make all the laws.'],
+  14: ['Emancipation Proclamation', 'Gettysburg Address', 'Pledge of Allegiance'],
+  15: ['To make the government faster', 'So the president has more power', 'Because there are three political parties'],
+  16: ['President, Vice President, and Cabinet', 'Senate, House, and Supreme Court', 'Federal, state, and local'],
+  17: ['Legislative branch', 'Judicial branch', 'Military branch'],
+  18: ['The Supreme Court', 'The President', 'The Cabinet'],
+  19: ['Senate and Supreme Court', 'House and Cabinet', 'President and Senate'],
+  20: ['Vetoes bills', 'Appoints federal judges', 'Commands the military'],
+  21: ['Fifty (50)', 'Four hundred thirty-five (435)', 'Nine (9)'],
+  22: ['Two (2) years', 'Four (4) years', 'For life'],
+  24: ['One hundred (100)', 'Fifty (50)', 'Five hundred thirty-eight (538)'],
+  25: ['Four (4) years', 'Six (6) years', 'One (1) year'],
+  26: ['To save money', 'Because the House is less important', 'To give senators more power'],
+  27: ['One (1)', 'Four (4)', 'It depends on the state\'s population'],
+  28: ['Because of the state\'s population', 'Because there are two political parties', 'Because the president chooses two'],
+  31: ['Only the people who voted for them', 'The president', 'Citizens in their district'],
+  32: ['The president', 'The House of Representatives', 'The Supreme Court'],
+  33: ['Citizens of the whole country', 'The president', 'The Senate'],
+  34: ['The Senate', 'The president', 'State governors'],
+  35: ['Because they are bigger in land', 'Because they are older states', 'Because they pay more taxes'],
+  36: ['Two (2) years', 'Six (6) years', 'Eight (8) years'],
+  37: ['Because of the 1st Amendment', 'Because the job is too hard', 'Because Congress votes after two terms'],
+  40: ['The Speaker of the House', 'The Chief Justice', 'The Secretary of State'],
+  41: ['Writes laws', 'Declares war', 'Makes the federal budget'],
+  42: ['The Secretary of War (Defense)', 'The Vice President', 'The Speaker of the House'],
+  43: ['The Chief Justice', 'The Speaker of the House', 'The Vice President'],
+  44: ['The Senate', 'The Supreme Court', 'The Speaker of the House'],
+  45: ['The Senate', 'The Chief Justice', 'State governors'],
+  46: ['Congress', 'Supreme Court', 'House of Representatives'],
+  47: ['Writes laws', 'Decides court cases', 'Elects the president'],
+  48: ['Chief Justice and Speaker of the House', 'Senate Majority Leader and Attorney General', 'Governor and Secretary of State'],
+  49: ['It writes the laws.', 'It chooses Supreme Court justices.', 'It counts the population.'],
+  50: ['Congress', 'Cabinet', 'Senate'],
+  51: ['Writes laws', 'Enforces laws', 'Commands the military'],
+  52: ['Federal Court of Appeals', 'District Court', 'State Supreme Court'],
+  53: ['Seven (7)', 'Twelve (12)', 'Fifteen (15)'],
+  54: ['Three (3)', 'Seven (7)', 'Nine (9)'],
+  55: ['Four (4) years', 'Six (6) years', 'Ten (10) years'],
+  56: ['To save money on elections', 'Because the president says so', 'To help their political party'],
+  58: ['Give a driver\'s license', 'Provide schooling and education', 'Approve zoning and land use'],
+  59: ['Print paper money', 'Declare war', 'Make treaties'],
+  60: ['It gives women the right to vote.', 'It ends slavery.', 'It limits the president to two terms.'],
+  63: ['Only people who own land can vote.', 'You must pay a tax to vote.', 'Only men can vote.'],
+  64: ['Everyone living in the United States', 'Green card holders', 'Anyone who pays taxes'],
+  65: ['Freedom of speech, freedom of religion, and the right to vote in federal elections',
+    'The right to run for federal office, freedom of assembly, and freedom of speech',
+    'The right to a free house, freedom of religion, and freedom of expression'],
+  66: ['The president', 'Congress', 'The state where you live'],
+  67: ['Vote in every election and pay no taxes', 'Keep loyalty to other countries and obey the laws', 'Join a political party and run for office'],
+  68: ['Pay federal taxes', 'Get a driver\'s license', 'Live in the United States for one year'],
+  69: ['Watch television and go shopping', 'Pay rent and drive a car', 'Travel abroad and learn to cook'],
+  70: ['Travel to other countries', 'Watch the news', 'Buy a house'],
+  71: ['It is a choice', 'Only citizens have to pay', 'To get the right to vote'],
+  72: ['To get a driver\'s license', 'To be able to vote', 'To get a passport'],
+  73: ['To pay higher taxes', 'To serve the king', 'To join the British army'],
+  74: ['Canadians', 'British colonists', 'Spanish settlers'],
+  75: ['People from Europe', 'People from Asia', 'People from Canada'],
+  76: ['Civil War', 'War of 1812', 'World War I'],
+  77: ['Low taxes', 'The king gave them too much freedom', 'They wanted to join France'],
+  78: ['George Washington', 'Abraham Lincoln', 'James Madison'],
+  79: ['July 4, 1787', 'December 7, 1941', 'September 17, 1776'],
+  80: ['(Battle of) Gettysburg', '(Bombing of) Pearl Harbor', '(Battle of) Fort Sumter'],
+  81: ['New York, Virginia, Georgia, Florida, and Ohio', 'Massachusetts, Maryland, Delaware, Texas, and Maine', 'California, New Jersey, Connecticut, Vermont, and Pennsylvania'],
+  82: ['Declaration of Independence', 'Emancipation Proclamation', 'Mayflower Compact'],
+  83: ['George Washington', 'Thomas Jefferson', 'Benjamin Franklin'],
+  84: ['They declared independence from Britain.', 'They ended slavery.', 'They created the Supreme Court.'],
+  85: ['Third president of the United States', 'General of the Continental Army', 'First Secretary of the Treasury'],
+  86: ['Wrote the Declaration of Independence', 'Freed the slaves', 'Third president of the United States'],
+  87: ['First president of the United States', 'General of the Continental Army', '"Father of the Constitution"'],
+  88: ['First president of the United States', 'Writer of the Declaration of Independence', 'First Secretary of the Treasury'],
+  89: ['Third president of the United States', 'Writer of the Declaration of Independence', '"Father of Our Country"'],
+  90: ['Alaska', 'Florida', 'Texas'],
+  91: ['World War I', 'Revolutionary War', 'Korean War'],
+  92: ['The Revolutionary War', 'The War of 1812', 'World War I'],
+  93: ['(Battle of) Yorktown', '(Bombing of) Pearl Harbor', '(Battle of) Bunker Hill'],
+  94: ['First president of the United States', 'Wrote the Declaration of Independence', 'President during World War II'],
+  95: ['Gave women the right to vote', 'Declared independence from Britain', 'Ended World War II'],
+  96: ['The Revolutionary War', 'World War I', 'The War of 1812'],
+  97: ['1st Amendment', '10th Amendment', '19th Amendment'],
+  98: ['After World War I', '1776', '(With the) 19th Amendment'],
+  99: ['Martha Washington', 'Betsy Ross', 'Eleanor Roosevelt'],
+  100: ['Civil War', 'War of 1812', 'Revolutionary War'],
+  101: ['Because Japan attacked Pearl Harbor', 'To stop the spread of communism', 'To force the Iraqi military from Kuwait'],
+  102: ['1870', 'After the Civil War', '(With the) 15th Amendment'],
+  103: ['A war between the North and the South', 'A long drought in the 1800s', 'The years right after World War II'],
+  104: ['The attack on Pearl Harbor (1941)', 'The end of World War I (1918)', 'The end of the Civil War (1865)'],
+  105: ['(Dwight) Eisenhower', '(Woodrow) Wilson', '(Abraham) Lincoln'],
+  106: ['To stop the spread of communism', 'To force the Iraqi military from Kuwait', 'To win independence from Britain'],
+  107: ['President during the Civil War', 'Wrote the Declaration of Independence', 'President during World War I'],
+  108: ['Germany', 'Japan', 'Great Britain'],
+  109: ['Slavery', 'High taxes from Britain', 'The Great Depression'],
+  110: ['To force the Iraqi military from Kuwait', 'Because of the attack on Pearl Harbor', 'To win independence from Britain'],
+  111: ['To force the Iraqi military from Kuwait', 'Because of the attack on Pearl Harbor', 'To win independence from Britain'],
+  112: ['Fought for independence from Britain', 'Fought to end the Cold War', 'Fought to lower taxes'],
+  113: ['Was president of the United States', 'Was a general in World War II', 'Wrote the Declaration of Independence'],
+  114: ['To stop the spread of communism', 'Because of the attack on Pearl Harbor', 'To support the Allied Powers'],
+  115: ['Japan attacked Pearl Harbor', 'The stock market crashed', 'The United States landed on the moon'],
+  116: ['Vietnam War', 'Korean War', '(Persian) Gulf War'],
+  117: ['Inca', 'Zulu', 'Viking'],
+  118: ['Printing press', 'Compass', 'Gunpowder'],
+  119: ['New York City', 'Philadelphia', 'Los Angeles'],
+  120: ['Washington, D.C.', 'Boston (Harbor)', 'San Francisco (Bay)'],
+  121: ['Because there were 13 presidents', 'Because there are 13 states now', 'Because the flag is 13 feet long'],
+  122: ['Because there were 50 original colonies', 'Because there are 50 senators', 'Because the country is 50 years old'],
+  123: ['America the Beautiful', 'God Bless America', 'My Country, \'Tis of Thee'],
+  124: ['In God we trust', 'Liberty and justice for all', 'We the People'],
+  125: ['A holiday to honor soldiers who died in military service', 'A holiday to honor workers', 'A holiday to honor people who have served in the military'],
+  126: ['Halloween, Thanksgiving Day, and Labor Day', 'Valentine\'s Day, Memorial Day, and Christmas Day', 'Juneteenth, Easter, and Veterans Day'],
+  127: ['A holiday to honor people who have served (in the U.S. military)', 'A holiday to celebrate U.S. independence', 'A holiday to honor workers'],
+  128: ['A holiday to honor soldiers who died in military service', 'A holiday to celebrate U.S. independence', 'A holiday to honor presidents'],
+};
+function joinList(items) {
+  return items.length < 3 ? items.join(' and ') : items.slice(0, -1).join(', ') + ', and ' + items[items.length - 1];
+}
+function buildOptions(q) {
+  const answers = answersFor(q).map((a) => a.replace(/\s*\[[^\]]*\]/g, '').trim());
+  let right;
+  if (q.need) right = joinList(shuffle(answers.slice()).slice(0, q.need));
+  else if (q.key && q.key !== 'senators') right = answers[0];
+  else right = answers[Math.floor(Math.random() * answers.length)];
+  const taken = new Set(answers.map((a) => a.toLowerCase()));
+  const pool = (q.key ? WRONG_NAMES[q.key] : WRONG[q.n]).filter((w) => !taken.has(w.toLowerCase()));
+  const opts = shuffle(pool.slice()).slice(0, 3).map((t) => ({ t: t, ok: false }));
+  opts.push({ t: right, ok: true });
+  return shuffle(opts);
+}
+
+/* ---------- saved progress (this phone only) ---------- */
+const KEY = 'civics-cards-v1';
+function blank() { return { status: {}, names: {}, tests: [], mix: false, speak: true, voice: '' }; }
+function load() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(KEY) || 'null');
+    return saved && typeof saved === 'object' ? Object.assign(blank(), saved) : blank();
+  } catch (e) { return blank(); }
+}
+function save() { try { localStorage.setItem(KEY, JSON.stringify(store)); } catch (e) {} }
+let store = load();
+
+/* ---------- small helpers ---------- */
+function el(tag, props, ...kids) {
+  const e = document.createElement(tag);
+  if (props) for (const k in props) {
+    const v = props[k];
+    if (v == null || v === false) continue;
+    if (k === 'class') e.className = v;
+    else if (k === 'text') e.textContent = v;
+    else if (k.startsWith('on')) e.addEventListener(k.slice(2), v);
+    else e.setAttribute(k, v === true ? '' : v);
+  }
+  for (const kid of kids.flat()) {
+    if (kid == null || kid === false) continue;
+    e.append(kid.nodeType ? kid : document.createTextNode(kid));
+  }
+  return e;
+}
+function shuffle(list) {
+  for (let i = list.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [list[i], list[j]] = [list[j], list[i]];
+  }
+  return list;
+}
+function officialText(key) {
+  const base = OFFICIALS[key].answers.join(' / ');
+  const ov = store.names[key];
+  return ov && ov.base === base && ov.v.trim() ? ov.v.trim() : base;
+}
+function answersFor(q) {
+  return q.key ? officialText(q.key).split('/').map((s) => s.trim()).filter(Boolean) : q.a;
+}
+function hintFor(q, answers) {
+  if (answers.length < 2) return null;
+  return q.need ? 'Give any ' + q.need + ' of these.' : 'Any one of these is correct.';
+}
+function countStatus(kind) {
+  let n = 0;
+  for (const q of QS) if (store.status[q.n] === kind) n++;
+  return n;
+}
+
+/* ---------- reading out loud ---------- */
+const canSpeak = 'speechSynthesis' in window && 'SpeechSynthesisUtterance' in window;
+function stopSpeak() { if (canSpeak) { try { speechSynthesis.cancel(); } catch (e) {} } }
+/* Pick the most natural English voice the phone has, leaning to a woman's voice. */
+let voiceList = [];
+const FEMALE = /samantha|ava\b|allison|susan|zoe|joanna|salli|kendra|kimberly|ivy|aria|jenny|michelle|emma|olivia|sonia|libby|karen|moira|tessa|serena|victoria|nicky|zira|hazel|catherine|female|google us english|sara\b|amy\b|joelle|noelle|evelyn/i;
+const MALE = /\b(male|david|mark|daniel|alex|fred|tom|aaron|guy|ryan|james|george|arthur|oliver|rishi|gordon|eddy|reed|rocko|grandpa|albert|ralph|junior|bruce)\b/i;
+function loadVoices() {
+  try { voiceList = speechSynthesis.getVoices().filter((v) => /^en([-_]|$)/i.test(v.lang)); } catch (e) { voiceList = []; }
+}
+function voiceScore(v) {
+  let s = 0;
+  if (FEMALE.test(v.name)) s += 100;
+  if (MALE.test(v.name)) s -= 100;
+  if (/natural|neural|enhanced|premium|siri/i.test(v.name)) s += 50;
+  if (/google/i.test(v.name)) s += 20;
+  if (/en[-_]US/i.test(v.lang)) s += 30;
+  if (/compact|eloquence|novelty/i.test(v.name + ' ' + v.voiceURI)) s -= 40;
+  return s;
+}
+function bestVoice() {
+  return voiceList.slice().sort((a, b) => voiceScore(b) - voiceScore(a))[0] || null;
+}
+function currentVoice() {
+  return voiceList.find((v) => v.voiceURI === store.voice) || bestVoice();
+}
+if (canSpeak) {
+  loadVoices();
+  try { speechSynthesis.addEventListener('voiceschanged', () => { loadVoices(); if (!document.getElementById('view-names').hidden) renderNames(); }); } catch (e) {}
+}
+function speak(text) {
+  if (!canSpeak) return;
+  try {
+    speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(text.replace(/\[[^\]]*\]/g, '').replace(/[()"*]/g, ''));
+    const v = currentVoice();
+    if (v) { u.voice = v; u.lang = v.lang; } else u.lang = 'en-US';
+    u.rate = 0.95;
+    u.pitch = 1.05;
+    speechSynthesis.speak(u);
+  } catch (e) {}
+}
+const SPEAKER = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z" fill="currentColor"/><path d="M15 9a4 4 0 0 1 0 6M17.5 6.5a7.5 7.5 0 0 1 0 11" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
+function listenButton(label, getText) {
+  if (!canSpeak) return null;
+  const b = el('button', { class: 'listen', type: 'button', onclick: () => speak(getText()) });
+  b.innerHTML = SPEAKER;
+  b.append(label);
+  return b;
+}
+
+/* ---------- one card ---------- */
+function cardFor(q, revealed) {
+  const answers = answersFor(q);
+  const card = el('article', { class: 'card' },
+    el('div', { class: 'meta' },
+      el('span', { text: 'Question ' + q.n + ' of 128' }),
+      el('span', { text: SUBS[q.s].short })),
+    el('h2', { class: 'q', text: q.q }),
+    listenButton('Listen', () => q.q));
+  if (revealed) {
+    const official = q.key ? OFFICIALS[q.key] : null;
+    card.append(el('div', { class: 'answer-block' },
+      el('p', { class: 'label', text: answers.length > 1 ? 'Answers' : 'Answer' }),
+      el('ul', { class: 'answers' }, answers.map((a) => el('li', { text: a }))),
+      hintFor(q, answers) && el('p', { class: 'muted small', text: hintFor(q, answers) }),
+      answers.some((a) => a.includes('(')) && el('p', { class: 'muted small', text: 'Words in ( ) are optional.' }),
+      q.note && el('p', { class: 'muted small', text: q.note }),
+      official && official.note && el('p', { class: 'note', text: official.note }),
+      listenButton('Listen to the answer', () => answers.slice(0, Math.max(q.need || 1, 3)).join('. '))));
+  }
+  return card;
+}
+
+/* ---------- header tally ---------- */
+function updateTally() {
+  const known = countStatus('known');
+  document.getElementById('tally').textContent = known + ' of 128 known';
+  document.getElementById('tallyBar').style.width = (known / 128 * 100).toFixed(1) + '%';
+}
+
+/* ---------- study ---------- */
+const study = { deck: 'all', queue: [], orig: [], repeats: {}, revealed: false };
+const deckSel = document.getElementById('deck');
+const mixBox = document.getElementById('mix');
+const studyBody = document.getElementById('studyBody');
+const mainEl = document.getElementById('main');
+
+function deckList(id) {
+  if (id === 'all') return QS.map((q) => q.n);
+  if (id === 'learning') return QS.filter((q) => store.status[q.n] === 'learning').map((q) => q.n);
+  if (id === 'new') return QS.filter((q) => !store.status[q.n]).map((q) => q.n);
+  const s = +id.slice(1);
+  return QS.filter((q) => q.s === s).map((q) => q.n);
+}
+function buildDeckOptions() {
+  deckSel.append(
+    el('option', { value: 'all', text: 'All 128 questions' }),
+    el('option', { value: 'new' }),
+    el('option', { value: 'learning' }),
+    el('optgroup', { label: 'By topic' }, SUBS.map((s, i) =>
+      el('option', { value: 't' + i, text: s.short + ' (' + deckList('t' + i).length + ')' }))));
+}
+function refreshDeckLabels() {
+  deckSel.querySelector('[value="new"]').textContent = 'Not seen yet (' + deckList('new').length + ')';
+  deckSel.querySelector('[value="learning"]').textContent = 'Still learning (' + deckList('learning').length + ')';
+}
+function startStudy(id) {
+  const list = deckList(id);
+  if (store.mix) shuffle(list);
+  study.deck = id;
+  study.orig = list.slice();
+  study.queue = list;
+  study.repeats = {};
+  study.revealed = false;
+  deckSel.value = id;
+  renderStudy();
+}
+function grade(known) {
+  const n = study.queue.shift();
+  store.status[n] = known ? 'known' : 'learning';
+  if (!known) {
+    const r = study.repeats[n] || 0;
+    if (r < 2 && study.queue.length > 0) {
+      study.repeats[n] = r + 1;
+      study.queue.splice(Math.min(4, study.queue.length), 0, n);
+    }
+  }
+  save();
+  stopSpeak();
+  study.revealed = false;
+  renderStudy();
+  updateTally();
+  mainEl.scrollTop = 0;
+}
+function renderStudy() {
+  refreshDeckLabels();
+  studyBody.replaceChildren();
+  if (study.orig.length === 0) {
+    const text = study.deck === 'learning' ? 'No cards here yet. Cards you mark "Still learning" will show up in this set.'
+      : study.deck === 'new' ? 'You have seen every card. Pick another set above.'
+      : 'No cards in this set.';
+    studyBody.append(el('div', { class: 'card' }, el('p', { text: text })),
+      el('div', { class: 'actions' }, el('button', { class: 'btn primary', type: 'button', text: 'Study all 128 questions', onclick: () => startStudy('all') })));
+    return;
+  }
+  if (study.queue.length === 0) {
+    const known = study.orig.filter((n) => store.status[n] === 'known').length;
+    const learning = study.orig.length - known;
+    studyBody.append(
+      el('div', { class: 'card' },
+        el('h2', { class: 'title', text: 'You finished this set' }),
+        el('p', { text: study.orig.length + (study.orig.length === 1 ? ' card. ' : ' cards. ') + known + ' marked "Got it" and ' + learning + ' still learning.' })),
+      el('div', { class: 'actions' },
+        learning > 0 && el('button', { class: 'btn primary', type: 'button', text: 'Study the ones I am still learning', onclick: () => startStudy('learning') }),
+        el('button', { class: 'btn ' + (learning > 0 ? 'quiet' : 'primary'), type: 'button', text: 'Go through this set again', onclick: () => startStudy(study.deck === 'new' ? 'all' : study.deck) })));
+    return;
+  }
+  const q = BY_N[study.queue[0]];
+  const left = study.queue.length;
+  studyBody.append(cardFor(q, study.revealed));
+  const actions = el('div', { class: 'actions' });
+  if (!study.revealed) {
+    actions.append(el('button', { class: 'btn primary', type: 'button', text: 'Show answer', onclick: () => { study.revealed = true; renderStudy(); } }));
+  } else {
+    actions.append(el('div', { class: 'row' },
+      el('button', { class: 'btn learn', type: 'button', text: 'Still learning', onclick: () => grade(false) }),
+      el('button', { class: 'btn good', type: 'button', text: 'Got it', onclick: () => grade(true) })));
+  }
+  actions.append(el('p', { class: 'muted small', text: left + (left === 1 ? ' card left in this set' : ' cards left in this set') }));
+  studyBody.append(actions);
+}
+
+/* ---------- checking a spoken answer ----------
+   A key-word check, not a person: it looks for the important words of any accepted answer.
+   It can be wrong, so the test always lets her correct it. */
+const STOP = new Set(('the a an of to in on for and or is are was were be it its they their them that this by with from at as do does did so ' +
+  'because there all into can who which he she his her we our you your one day has have had i my me um uh think believe answer during year holiday').split(' '));
+const GUARD = ['only', 'not', 'never', 'no', 'died'];
+const UNITS = { zero: 0, two: 2, three: 3, four: 4, five: 5, six: 6, seven: 7, eight: 8, nine: 9, ten: 10, eleven: 11, twelve: 12, thirteen: 13, fourteen: 14, fifteen: 15, sixteen: 16, seventeen: 17, eighteen: 18, nineteen: 19 };
+const TENS = { twenty: 20, thirty: 30, forty: 40, fifty: 50, sixty: 60, seventy: 70, eighty: 80, ninety: 90 };
+const ORD = { first: 1, second: 2, third: 3, fourth: 4, fifth: 5, sixth: 6, seventh: 7, eighth: 8, ninth: 9, tenth: 10, eleventh: 11, twelfth: 12, thirteenth: 13, fourteenth: 14, fifteenth: 15, sixteenth: 16, seventeenth: 17, eighteenth: 18, nineteenth: 19, twentieth: 20, thirtieth: 30 };
+const ALIASES = {
+  12: ['capitalist', 'free market'],
+  20: ['makes laws', 'makes the budget'],
+  41: ['signs bills', 'veto'],
+  48: ['Secretary of Defense'],
+  58: ['print money', 'coin money'],
+  59: ['police', 'fire department', 'schools', 'education', 'drivers license'],
+  74: ['Indians'],
+  99: ['Elizabeth Stanton'],
+  113: ['civil rights'],
+  115: ['terrorist attack', 'terrorists attacked'],
+  118: ['car', 'moon landing'],
+  128: ['honor veterans'],
+};
+function numerize(ws) {
+  const out = [], spoken = [];
+  let i = 0;
+  const small =(j) => (ws[j] in UNITS && UNITS[ws[j]] > 0 && UNITS[ws[j]] < 10) ? UNITS[ws[j]] : ws[j] === 'one' ? 1 : 0;
+  while (i < ws.length) {
+    const w = ws[i];
+    const m = w.match(/^(\d+)(st|nd|rd|th)$/);
+    if (m) { out.push(m[1] + 'th'); spoken.push(false); i++; continue; }
+    if (/^\d+$/.test(w)) { out.push(w); spoken.push(false); i++; continue; }
+    let val = null, ord = false, j = i;
+    if (w === 'one' && ws[i + 1] === 'hundred') { val = 1; j = i + 1; }
+    else if (w === 'hundred') { val = 1; j = i; }
+    else if (w in UNITS) { val = UNITS[w]; j = i + 1; }
+    else if (w in TENS) {
+      val = TENS[w]; j = i + 1;
+      if (small(j)) { val += small(j); j++; }
+      else if (ws[j] in ORD && ORD[ws[j]] < 10) { val += ORD[ws[j]]; ord = true; j++; }
+    }
+    else if (w in ORD) { val = ORD[w]; ord = true; j = i + 1; }
+    if (val === null) { out.push(w); spoken.push(false); i++; continue; }
+    if (!ord && ws[j] === 'hundred') {
+      val *= 100; j++;
+      if (ws[j] === 'and') j++;
+      if (ws[j] in TENS) { val += TENS[ws[j]]; j++; if (small(j)) { val += small(j); j++; } }
+      else if (ws[j] in UNITS) { val += UNITS[ws[j]]; j++; }
+    }
+    out.push(ord ? val + 'th' : String(val));
+    spoken.push(!ord);
+    i = j;
+  }
+  /* "seventeen seventy-six" is the year 1776 */
+  const res = [];
+  for (let k = 0; k < out.length; k++) {
+    const a = out[k], b = out[k + 1] || '';
+    if (spoken[k] && spoken[k + 1] && /^\d\d$/.test(a) && +a >= 13 && +a <= 20 && /^\d\d$/.test(b)) { res.push(a + b); k++; } else res.push(a);
+  }
+  return res;
+}
+function stem(w) {
+  if (/\d/.test(w)) return w;
+  if (w.length > 4 && w.endsWith('ies')) return w.slice(0, -3) + 'y';
+  if (w.length > 4 && /(xes|ches|shes|sses|oes)$/.test(w)) return w.slice(0, -2);
+  if (w.length > 3 && w.endsWith('s') && !w.endsWith('ss') && !w.endsWith('us')) return w.slice(0, -1);
+  return w;
+}
+function keyWords(text) {
+  let s = text.toLowerCase().replace(/[‘’]/g, "'").replace(/&/g, ' and ');
+  s = s.replace(/u\.s\.a\.|u\.s\./g, ' us ').replace(/'s\b/g, '').replace(/[^a-z0-9\s]/g, ' ');
+  s = s.replace(/\b(the )?united states( of america)?\b/g, ' us ').replace(/\busa\b/g, ' us ').replace(/\bamericans?\b|\bamerica\b/g, ' us ');
+  s = s.replace(/\b(second world war|world war (ii|2|two))\b/g, ' ww2 ').replace(/\b(first world war|world war (i|1|one))\b/g, ' ww1 ');
+  s = s.replace(/\b(british|britain|england|english)\b/g, ' britain ').replace(/\bnew years?\b/g, ' newyear ');
+  return numerize(s.split(/\s+/).filter(Boolean)).map(stem).filter((w) => !STOP.has(w) && (w.length > 1 || /\d/.test(w)));
+}
+function editDistance(a, b) {
+  const row = [];
+  for (let j = 0; j <= b.length; j++) row[j] = j;
+  for (let i = 1; i <= a.length; i++) {
+    let prev = row[0];
+    row[0] = i;
+    for (let j = 1; j <= b.length; j++) {
+      const keep = row[j];
+      row[j] = Math.min(row[j] + 1, row[j - 1] + 1, prev + (a[i - 1] === b[j - 1] ? 0 : 1));
+      prev = keep;
+    }
+  }
+  return row[b.length];
+}
+function sameWord(a, t, strict) {
+  if (a === t) return true;
+  const na = /\d/.test(a), nt = /\d/.test(t);
+  if (na || nt) {
+    if (!(na && nt)) return false;
+    return a.endsWith('th') ? a === t : a === t.replace(/th$/, '');
+  }
+  if (a.length < 4 || t.length < 4) return false;
+  const min = Math.min(a.length, t.length);
+  if (!strict) {
+    let p = 0;
+    while (p < min && a[p] === t[p]) p++;
+    if (p >= Math.max(4, min - 1) && Math.abs(a.length - t.length) <= 3) return true;
+  }
+  return editDistance(a, t) <= (min >= 7 ? 2 : 1);
+}
+function answerVariants(ans) {
+  const plain = ans.replace(/\[[^\]]*\]/g, ' ');
+  const list = [keyWords(plain.replace(/\([^)]*\)/g, ' '))];
+  for (const m of plain.matchAll(/\(([^)]*)\)/g)) {
+    const inner = m[1].trim(), w = keyWords(inner);
+    if (/^[A-Z0-9]/.test(inner) && (w.length >= 2 || (w.length === 1 && /\d/.test(w[0])))) list.push(w);
+  }
+  /* "of the United States" is never the important part when other words are there */
+  return list.map((v) => (v.length >= 2 ? v.filter((w) => w !== 'us') : v)).filter((v) => v.length);
+}
+function variantHit(v, said, strict) {
+  if (v.includes('president') && !v.includes('vice') && said.includes('vice')) return false;
+  for (const g of GUARD) if (said.includes(g) && !v.includes(g)) return false;
+  const has = (a) => said.some((t) => sameWord(a, t, strict));
+  const count = (list) => list.filter(has).length;
+  const nums = v.filter((w) => /^\d+$/.test(w) || /^ww\d$/.test(w));
+  if (nums.length && v.length <= 4) {
+    /* short answers with a number: every number, plus half of the other words */
+    const rest = v.filter((w) => !nums.includes(w));
+    return count(nums) === nums.length && count(rest) >= Math.ceil(rest.length / 2);
+  }
+  const need = v.length <= 3 ? v.length : v.length === 4 ? 3 : Math.ceil(v.length / 2);
+  return count(v) >= need;
+}
+function judge(q, texts) {
+  const answers = answersFor(q), extra = ALIASES[q.n] || [], need = q.need || 1;
+  let best = 0;
+  for (const text of texts) {
+    const said = keyWords(text);
+    let count = 0;
+    for (const a of answers) if (answerVariants(a).some((v) => variantHit(v, said, !!q.key))) count++;
+    for (const a of extra) if (variantHit(keyWords(a), said, false)) count++;
+    best = Math.max(best, count);
+  }
+  return best >= need;
+}
+
+/* ---------- listening to her answer ---------- */
+const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+let micOK = !!SR;
+try { if (micOK && document.featurePolicy && !document.featurePolicy.allowsFeature('microphone')) micOK = false; } catch (e) {}
+let rec = null;
+const MIC = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3" fill="currentColor"/><path d="M6 11a6 6 0 0 0 12 0M12 17v4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
+const NO_MIC = 'The microphone is not available here. Tap "Show answer" and mark yourself.';
+function stopListening() {
+  if (rec) { try { rec.onend = null; rec.abort(); } catch (e) {} rec = null; }
+  test.listening = false;
+}
+function startListening(q) {
+  stopSpeak();
+  stopListening();
+  let texts = [];
+  try {
+    const r = new SR();
+    r.lang = 'en-US';
+    r.interimResults = true;
+    r.maxAlternatives = 3;
+    r.onresult = (e) => {
+      const alts = [[], [], []];
+      for (const res of e.results) for (let k = 0; k < 3; k++) alts[k].push((res[k] || res[0]).transcript);
+      texts = alts.map((a) => a.join(' ').trim());
+      const live = document.getElementById('heardLive');
+      if (live) live.textContent = texts[0] || '…';
+    };
+    r.onerror = (e) => { if (e.error === 'not-allowed' || e.error === 'service-not-allowed') micOK = false; };
+    r.onend = () => {
+      rec = null;
+      test.listening = false;
+      if (!test.on || test.over || test.list[test.i] !== q.n) return;
+      const said = texts[0] || '';
+      if (!said) {
+        test.note = micOK ? 'I could not hear you. Tap the microphone and try again.' : NO_MIC;
+        renderTest();
+        return;
+      }
+      const ok = judge(q, texts);
+      test.heard = { text: said, ok: ok };
+      test.revealed = true;
+      test.note = '';
+      renderTest();
+      if (store.speak) speak(ok ? 'That is right.' : 'Not quite.');
+    };
+    rec = r;
+    test.listening = true;
+    test.note = '';
+    r.start();
+  } catch (e) {
+    micOK = false;
+    rec = null;
+    test.listening = false;
+    test.note = NO_MIC;
+  }
+  renderTest();
+}
+function micButton(q) {
+  const b = el('button', { class: 'btn primary with-icon', type: 'button', onclick: () => startListening(q) });
+  b.innerHTML = MIC;
+  b.append('Say my answer');
+  return b;
+}
+
+/* ---------- practice test ---------- */
+const NEED_RIGHT = 12, MAX_WRONG = 9, ASKED = 20;
+const test = { on: false, mode: 'say', list: [], i: 0, right: 0, wrong: 0, missed: [], revealed: false, over: false, opts: null, picked: null, heard: null, listening: false, note: '' };
+const testView = document.getElementById('view-test');
+
+function startTest(mode) {
+  Object.assign(test, { on: true, mode: mode === 'mc' ? 'mc' : 'say', list: shuffle(QS.map((q) => q.n)).slice(0, ASKED), i: 0, right: 0, wrong: 0, missed: [], revealed: false, over: false, opts: null, picked: null, heard: null, listening: false, note: '' });
+  if (test.mode === 'mc') test.opts = buildOptions(BY_N[test.list[0]]);
+  renderTest();
+  if (store.speak) speak(BY_N[test.list[0]].q);
+  mainEl.scrollTop = 0;
+}
+function markTest(ok) {
+  const n = test.list[test.i];
+  if (ok) { test.right++; store.status[n] = 'known'; }
+  else { test.wrong++; test.missed.push(n); store.status[n] = 'learning'; }
+  stopSpeak();
+  stopListening();
+  if (test.right >= NEED_RIGHT || test.wrong >= MAX_WRONG || test.i >= ASKED - 1) {
+    test.over = true;
+    store.tests.push({ t: Date.now(), r: test.right, w: test.wrong, p: test.right >= NEED_RIGHT, m: test.mode });
+    if (store.tests.length > 200) store.tests = store.tests.slice(-200);
+  } else {
+    test.i++;
+    test.revealed = false;
+    test.picked = null;
+    test.heard = null;
+    test.note = '';
+    test.opts = test.mode === 'mc' ? buildOptions(BY_N[test.list[test.i]]) : null;
+  }
+  save();
+  updateTally();
+  renderTest();
+  if (!test.over && store.speak) speak(BY_N[test.list[test.i]].q);
+  mainEl.scrollTop = 0;
+}
+function pips(count, filled, kind) {
+  const row = el('span', { class: 'pips', 'aria-hidden': 'true' });
+  for (let i = 0; i < count; i++) row.append(el('span', { class: 'pip ' + kind + (i < filled ? ' on' : '') }));
+  return row;
+}
+function renderTest() {
+  testView.replaceChildren();
+  if (!test.on) {
+    const taken = store.tests.length, passed = store.tests.filter((t) => t.p).length;
+    testView.append(
+      el('div', { class: 'card' },
+        el('h2', { class: 'title', text: 'Practice test' }),
+        el('p', { text: 'At the interview, the officer asks up to 20 questions out loud. You pass when you get 12 right. The officer stops at 12 right or 9 wrong.' }),
+        el('p', { text: micOK
+          ? 'Spoken test: tap the microphone and say your answer, like at the real interview. The page listens for the key words and tells you if it heard a correct answer. It can mishear, so you can always correct it.'
+          : 'Spoken test: say your answer out loud, tap "Show answer", then mark yourself right or wrong. This is how the real interview works.' }),
+        el('p', { text: 'Multiple choice test: pick one of four answers. It is a good warm-up, but the real test has no choices to pick from.' }),
+        canSpeak && el('label', { class: 'check', for: 'speakBox' },
+          el('input', { type: 'checkbox', id: 'speakBox', checked: store.speak, onchange: (e) => { store.speak = e.target.checked; save(); } }),
+          'Read each question out loud'),
+        el('p', { class: 'muted small', text: taken === 0 ? 'No practice tests taken yet.' : 'Practice tests taken: ' + taken + '. Passed: ' + passed + '.' })),
+      el('div', { class: 'actions' },
+        el('button', { class: 'btn primary', type: 'button', text: 'Start spoken test', onclick: () => startTest('say') }),
+        el('button', { class: 'btn quiet', type: 'button', text: 'Start multiple choice test', onclick: () => startTest('mc') })));
+    return;
+  }
+  const score = el('div', { class: 'card score' },
+    el('div', { class: 'score-line' }, el('b', { text: 'Right: ' + test.right }), pips(NEED_RIGHT, test.right, 'good')),
+    el('div', { class: 'score-line' }, el('b', { text: 'Wrong: ' + test.wrong }), pips(MAX_WRONG, test.wrong, 'miss')));
+  if (test.over) {
+    const pass = test.right >= NEED_RIGHT;
+    testView.append(
+      el('div', { class: 'card' },
+        el('h2', { class: 'verdict ' + (pass ? 'pass' : 'fail'), text: pass ? 'You passed' : 'Not yet' }),
+        el('p', { text: pass
+          ? 'You got ' + test.right + ' right and ' + test.wrong + ' wrong. 12 right is a pass.'
+          : 'You got ' + test.right + ' right and ' + test.wrong + ' wrong. You need 12 right to pass.' })),
+      score);
+    if (test.missed.length) {
+      testView.append(el('div', { class: 'card missed' },
+        el('p', { class: 'label', text: 'Questions to study again' }),
+        test.missed.map((n) => el('div', null,
+          el('h3', { text: n + '. ' + BY_N[n].q }),
+          el('p', { text: answersFor(BY_N[n]).slice(0, 4).join(' · ') + (answersFor(BY_N[n]).length > 4 ? ' · and more' : '') }))),
+        el('p', { class: 'muted small', text: 'These are now in your "Still learning" cards.' })));
+    }
+    testView.append(el('div', { class: 'actions' },
+      test.missed.length > 0 && el('button', { class: 'btn primary', type: 'button', text: 'Study the ones I missed', onclick: () => { test.on = false; show('study'); startStudy('learning'); } }),
+      el('button', { class: 'btn ' + (test.missed.length > 0 ? 'quiet' : 'primary'), type: 'button', text: 'Take another test', onclick: () => startTest(test.mode) }),
+      el('button', { class: 'btn quiet slim', type: 'button', text: 'Back to test choices', onclick: () => { test.on = false; renderTest(); mainEl.scrollTop = 0; } })));
+    return;
+  }
+  const q = BY_N[test.list[test.i]];
+  const actions = el('div', { class: 'actions' });
+  if (test.mode === 'mc') {
+    const done = test.picked != null;
+    const card = cardFor(q, false);
+    card.append(el('div', { class: 'opts' }, test.opts.map((o, i) => {
+      const state = !done ? '' : o.ok ? ' right' : i === test.picked ? ' wrong' : '';
+      return el('button', { class: 'opt' + state, type: 'button', disabled: done,
+        onclick: () => { if (test.picked == null) { test.picked = i; stopSpeak(); renderTest(); } } },
+        el('span', { class: 'letter', text: 'ABCD'[i] }),
+        el('span', { class: 'opt-text', text: o.t }),
+        state && el('span', { class: 'mark', 'aria-hidden': 'true', text: o.ok ? '✓' : '✕' }));
+    })));
+    if (done) {
+      const ok = test.opts[test.picked].ok;
+      card.append(el('p', { class: 'result-line ' + (ok ? 'ok' : 'no'), role: 'status', text: ok ? 'Correct!' : 'Not quite. The right answer has the check mark.' }));
+      actions.append(el('button', { class: 'btn primary', type: 'button', text: 'Next question', onclick: () => markTest(ok) }));
+    } else {
+      actions.append(el('p', { class: 'muted small', text: 'Tap the answer you think is right.' }));
+    }
+    testView.append(score, card);
+  } else if (!test.revealed) {
+    const card = cardFor(q, false);
+    if (test.listening) {
+      card.append(el('div', { class: 'heard' },
+        el('p', { class: 'label', text: 'Listening' }),
+        el('p', { id: 'heardLive', class: 'heard-text', text: '…' })));
+      actions.append(el('button', { class: 'btn primary', type: 'button', text: 'I am done talking', onclick: () => { if (rec) { try { rec.stop(); } catch (e) {} } } }));
+    } else {
+      if (test.note) card.append(el('p', { class: 'note', role: 'status', text: test.note }));
+      if (micOK) actions.append(micButton(q));
+      actions.append(el('button', { class: 'btn ' + (micOK ? 'quiet' : 'primary'), type: 'button', text: 'Show answer', onclick: () => { test.revealed = true; renderTest(); } }));
+    }
+    testView.append(score, card);
+  } else if (test.heard) {
+    const ok = test.heard.ok;
+    const card = cardFor(q, true);
+    card.querySelector('.answer-block').prepend(
+      el('p', { class: 'result-line ' + (ok ? 'ok' : 'no'), role: 'status', text: ok ? 'That is right!' : 'I did not hear a correct answer.' }),
+      el('p', { class: 'muted small', text: 'I heard: “' + test.heard.text + '”' }));
+    testView.append(score, card);
+    actions.append(
+      el('button', { class: 'btn primary', type: 'button', text: 'Next question', onclick: () => markTest(ok) }),
+      el('button', { class: 'btn quiet slim', type: 'button', text: ok ? 'No, I was wrong' : 'No, I was right', onclick: () => markTest(!ok) }));
+  } else {
+    testView.append(score, cardFor(q, true));
+    actions.append(el('div', { class: 'row' },
+      el('button', { class: 'btn miss', type: 'button', text: 'I was wrong', onclick: () => markTest(false) }),
+      el('button', { class: 'btn good', type: 'button', text: 'I was right', onclick: () => markTest(true) })));
+  }
+  if (test.mode === 'mc' && test.picked != null) {
+    /* keep the right answer in view, above the buttons */
+    const shown = testView.querySelector('.opt.right');
+    if (shown) setTimeout(() => { try { shown.scrollIntoView({ block: 'nearest' }); } catch (e) {} }, 0);
+  }
+  actions.append(el('div', { class: 'row' },
+    el('p', { class: 'muted small', style: 'flex:1;align-self:center', text: 'Test question ' + (test.i + 1) + ' of up to 20' }),
+    el('button', { class: 'btn quiet slim', type: 'button', style: 'flex:none', text: 'Stop test', onclick: () => { stopSpeak(); stopListening(); test.on = false; renderTest(); } })));
+  testView.append(actions);
+}
+
+/* ---------- names ---------- */
+const namesView = document.getElementById('view-names');
+let confirmErase = false;
+function renderNames() {
+  namesView.replaceChildren();
+  const card = el('div', { class: 'card' },
+    el('h2', { class: 'title', text: 'Names that can change' }),
+    el('p', { text: 'These answers depend on who is in office. At the interview, give the name of the person serving on that day.' }),
+    el('p', { class: 'muted small', text: 'Checked on ' + CHECKED + ' for Woodbury, Minnesota. If a name changes, type the new one here. Put / between names when more than one is correct.' }));
+  for (const key of NAME_ORDER) {
+    const q = QS.find((x) => x.key === key);
+    const o = OFFICIALS[key];
+    const base = o.answers.join(' / ');
+    const id = 'name-' + key;
+    const savedMsg = el('span', { class: 'saved', role: 'status' });
+    const input = el('input', { type: 'text', id: id, value: officialText(key), autocomplete: 'off', onchange: (e) => {
+      const v = e.target.value.trim();
+      if (!v || v === base) { delete store.names[key]; e.target.value = base; }
+      else store.names[key] = { v: v, base: base };
+      save();
+      savedMsg.textContent = 'Saved';
+    } });
+    card.append(el('div', { class: 'field' },
+      el('label', { for: id, text: q.n + '. ' + q.q }),
+      input,
+      o.note && el('p', { class: 'note', text: o.note }),
+      savedMsg));
+  }
+  namesView.append(card);
+
+  if (canSpeak && voiceList.length) {
+    const best = bestVoice();
+    const pick = el('select', { id: 'voicePick', onchange: (e) => { store.voice = e.target.value; save(); speak('What is the supreme law of the land?'); } },
+      el('option', { value: '', text: 'Best match' + (best ? ' (' + best.name + ')' : '') }),
+      voiceList.slice().sort((a, b) => voiceScore(b) - voiceScore(a)).map((v) => el('option', { value: v.voiceURI, text: v.name })));
+    pick.value = voiceList.some((v) => v.voiceURI === store.voice) ? store.voice : '';
+    namesView.append(el('div', { class: 'card' },
+      el('p', { class: 'label', text: 'Voice' }),
+      el('div', { class: 'field' },
+        el('label', { for: 'voicePick', text: 'Who reads the questions' }),
+        pick),
+      el('p', { class: 'muted small', text: 'These are the voices on this phone. Pick one to hear it. The ones at the top usually sound the most natural.' }),
+      el('button', { class: 'btn quiet slim', type: 'button', text: 'Play a sample', onclick: () => speak('What is the supreme law of the land?') })));
+  }
+
+  const erase = el('div', { class: 'card' },
+    el('p', { class: 'label', text: 'Your progress' }),
+    el('p', { text: 'Your progress is saved on this phone only. ' + countStatus('known') + ' cards marked "Got it", ' + countStatus('learning') + ' still learning, ' + store.tests.length + ' practice tests taken.' }));
+  if (!confirmErase) {
+    erase.append(el('button', { class: 'btn quiet slim', type: 'button', text: 'Erase my progress', onclick: () => { confirmErase = true; renderNames(); } }));
+  } else {
+    erase.append(el('p', { text: 'Erase all progress and start over? This cannot be undone.' }),
+      el('div', { class: 'row' },
+        el('button', { class: 'btn quiet slim', type: 'button', text: 'Keep it', onclick: () => { confirmErase = false; renderNames(); } }),
+        el('button', { class: 'btn miss slim', type: 'button', text: 'Yes, erase', onclick: () => {
+          store.status = {}; store.tests = []; save(); confirmErase = false; test.on = false;
+          updateTally(); renderNames(); startStudy('all');
+        } })));
+  }
+  namesView.append(erase,
+    el('p', { class: 'fine', text: 'Questions and answers are from the official USCIS list, "128 Civics Questions and Answers (2025 version)", form M-1778 (09/25). For the newest answers, see uscis.gov/citizenship/testupdates.' }));
+}
+
+/* ---------- tabs ---------- */
+function show(view) {
+  for (const v of ['study', 'test', 'names']) {
+    document.getElementById('view-' + v).hidden = v !== view;
+    document.getElementById('tab-' + v).setAttribute('aria-selected', String(v === view));
+  }
+  stopSpeak();
+  stopListening();
+  if (view === 'study') renderStudy();
+  if (view === 'test') renderTest();
+  if (view === 'names') { confirmErase = false; renderNames(); }
+  mainEl.scrollTop = 0;
+}
+for (const v of ['study', 'test', 'names']) {
+  document.getElementById('tab-' + v).addEventListener('click', () => show(v));
+}
+
+/* ---------- start ---------- */
+buildDeckOptions();
+mixBox.checked = !!store.mix;
+mixBox.addEventListener('change', () => { store.mix = mixBox.checked; save(); startStudy(study.deck); });
+deckSel.addEventListener('change', () => startStudy(deckSel.value));
+updateTally();
+(function () {
+  const seen = Object.keys(store.status).length;
+  const unseen = deckList('new').length;
+  startStudy(seen > 0 && unseen > 0 ? 'new' : unseen === 0 && deckList('learning').length > 0 ? 'learning' : 'all');
+})();
+</script>
