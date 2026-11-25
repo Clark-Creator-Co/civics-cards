@@ -170,6 +170,13 @@ select, input[type="text"] {
 .result-line { font-family: var(--font-display); font-size: 1.3rem; line-height: 1.25; }
 .result-line.ok { color: var(--good); }
 .result-line.no { color: var(--miss); }
+.result-line.almost { color: var(--learn); }
+.label.listening { display: flex; align-items: center; gap: 10px; color: var(--brand-text); }
+.label.listening::before { content: ""; width: 12px; height: 12px; border-radius: 50%; background: var(--accent); }
+@media (prefers-reduced-motion: no-preference) {
+  .label.listening::before { animation: pulse 1.2s ease-in-out infinite; }
+  @keyframes pulse { 50% { transform: scale(1.6); opacity: 0.4; } }
+}
 .heard { display: flex; flex-direction: column; gap: 6px; border-top: 2px solid var(--accent); padding-top: 14px; }
 .heard-text { font-size: 1.2rem; min-height: 1.6em; }
 .btn.slim { min-height: 46px; font-size: 1rem; }
@@ -641,6 +648,8 @@ function renderStudy() {
 const STOP = new Set(('the a an of to in on for and or is are was were be it its they their them that this by with from at as do does did so ' +
   'because there all into can who which he she his her we our you your one day has have had i my me um uh think believe answer during year holiday').split(' '));
 const GUARD = ['only', 'not', 'never', 'no', 'died'];
+/* words that make an answer wrong for one question, e.g. "State Supreme Court" for the highest court */
+const QGUARD = { 52: ['state', 'district', 'appeal'] };
 const UNITS = { zero: 0, two: 2, three: 3, four: 4, five: 5, six: 6, seven: 7, eight: 8, nine: 9, ten: 10, eleven: 11, twelve: 12, thirteen: 13, fourteen: 14, fifteen: 15, sixteen: 16, seventeen: 17, eighteen: 18, nineteen: 19 };
 const TENS = { twenty: 20, thirty: 30, forty: 40, fifty: 50, sixty: 60, seventy: 70, eighty: 80, ninety: 90 };
 const ORD = { first: 1, second: 2, third: 3, fourth: 4, fifth: 5, sixth: 6, seventh: 7, eighth: 8, ninth: 9, tenth: 10, eleventh: 11, twelfth: 12, thirteenth: 13, fourteenth: 14, fifteenth: 15, sixteenth: 16, seventeenth: 17, eighteenth: 18, nineteenth: 19, twentieth: 20, thirtieth: 30 };
@@ -765,90 +774,164 @@ function variantHit(v, said, strict) {
   const need = v.length <= 3 ? v.length : v.length === 4 ? 3 : Math.ceil(v.length / 2);
   return count(v) >= need;
 }
+/* Exact check: every important word of one official answer. Words in parentheses are optional. */
+function exactVariants(ans) {
+  const plain = ans.replace(/\[[^\]]*\]/g, ' ');
+  return [keyWords(plain.replace(/\([^)]*\)/g, ' '))].filter((v) => v.length);
+}
+function exactHit(v, said) {
+  if (v.includes('president') && !v.includes('vice') && said.includes('vice')) return false;
+  for (const g of GUARD) if (said.includes(g) && !v.includes(g)) return false;
+  return v.every((a) => said.some((t) => sameWord(a, t, true)));
+}
+/* level: 'exact' = the official wording, 'close' = right idea but not the full official answer, 'no' = wrong */
 function judge(q, texts) {
   const answers = answersFor(q), extra = ALIASES[q.n] || [], need = q.need || 1;
-  let best = 0;
+  let exact = 0, loose = 0;
   for (const text of texts) {
     const said = keyWords(text);
-    let count = 0;
-    for (const a of answers) if (answerVariants(a).some((v) => variantHit(v, said, !!q.key))) count++;
-    for (const a of extra) if (variantHit(keyWords(a), said, false)) count++;
-    best = Math.max(best, count);
+    if ((QGUARD[q.n] || []).some((w) => said.includes(w))) continue;
+    let e = 0, l = 0;
+    for (const a of answers) {
+      if (exactVariants(a).some((v) => exactHit(v, said))) { e++; l++; }
+      else if (answerVariants(a).some((v) => variantHit(v, said, !!q.key))) l++;
+    }
+    for (const a of extra) if (variantHit(keyWords(a), said, false)) l++;
+    exact = Math.max(exact, e);
+    loose = Math.max(loose, l);
   }
-  return best >= need;
+  return { level: exact >= need ? 'exact' : (loose >= need || exact > 0) ? 'close' : 'no', got: exact, need: need };
 }
 
-/* ---------- listening to her answer ---------- */
+/* ---------- listening to her answer ----------
+   Patient on purpose. It keeps listening through pauses, so she has time to think.
+   It stops when she taps "I am done", or after a long quiet spell once she has said something. */
 const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
 let micOK = !!SR;
 try { if (micOK && document.featurePolicy && !document.featurePolicy.allowsFeature('microphone')) micOK = false; } catch (e) {}
-let rec = null;
+let rec = null, listen = null;
+const QUIET_MS = 7000, MAX_MS = 120000;
 const MIC = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3" fill="currentColor"/><path d="M6 11a6 6 0 0 0 12 0M12 17v4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
 const NO_MIC = 'The microphone is not available here. Tap "Show answer" and mark yourself.';
+const MIC_TROUBLE = 'The microphone stopped working. Check the internet connection and try again, or tap "Show answer".';
+function heardSoFar(L) { return (L.finals[0].join(' ') + ' ' + L.interim).trim(); }
+function clearListenTimers(L) { clearTimeout(L.quiet); clearTimeout(L.cap); clearTimeout(L.fallback); }
 function stopListening() {
+  const L = listen;
+  listen = null;
+  if (L) clearListenTimers(L);
   if (rec) { try { rec.onend = null; rec.abort(); } catch (e) {} rec = null; }
   test.listening = false;
 }
 function startListening(q) {
   stopSpeak();
   stopListening();
-  let texts = [];
+  const L = { q: q, finals: [[], [], []], interim: '', wantStop: false, problem: '', restarts: 0, quiet: null, cap: null, fallback: null };
+  listen = L;
+  test.listening = true;
+  test.note = '';
+  L.cap = setTimeout(() => finishSoon(L), MAX_MS);
+  openRec(L);
+  renderTest();
+}
+function openRec(L) {
   try {
     const r = new SR();
     r.lang = 'en-US';
     r.interimResults = true;
     r.maxAlternatives = 3;
+    /* Android repeats words in continuous mode, so there it listens one phrase at a time and reopens. */
+    r.continuous = !/Android/i.test(navigator.userAgent);
     r.onresult = (e) => {
-      const alts = [[], [], []];
-      for (const res of e.results) for (let k = 0; k < 3; k++) alts[k].push((res[k] || res[0]).transcript);
-      texts = alts.map((a) => a.join(' ').trim());
-      const live = document.getElementById('heardLive');
-      if (live) live.textContent = texts[0] || '…';
-    };
-    r.onerror = (e) => { if (e.error === 'not-allowed' || e.error === 'service-not-allowed') micOK = false; };
-    r.onend = () => {
-      rec = null;
-      test.listening = false;
-      if (!test.on || test.over || test.list[test.i] !== q.n) return;
-      const said = texts[0] || '';
-      if (!said) {
-        test.note = micOK ? 'I could not hear you. Tap the microphone and try again.' : NO_MIC;
-        renderTest();
-        return;
+      if (listen !== L) return;
+      let interim = '';
+      for (let i = e.resultIndex; i < e.results.length; i++) {
+        const res = e.results[i];
+        if (res.isFinal) { for (let k = 0; k < 3; k++) L.finals[k].push((res[k] || res[0]).transcript.trim()); }
+        else interim += res[0].transcript + ' ';
       }
-      const ok = judge(q, texts);
-      test.heard = { text: said, ok: ok };
-      test.revealed = true;
-      test.note = '';
-      renderTest();
-      if (store.speak) speak(ok ? 'That is right.' : 'Not quite.');
+      L.interim = interim.trim();
+      const live = document.getElementById('heardLive');
+      if (live) live.textContent = heardSoFar(L) || '…';
+      clearTimeout(L.quiet);
+      if (heardSoFar(L)) L.quiet = setTimeout(() => finishSoon(L), QUIET_MS);
+    };
+    r.onerror = (e) => {
+      if (e.error === 'no-speech' || e.error === 'aborted') return;   /* a pause to think is not a problem */
+      L.problem = e.error || 'error';
+      if (e.error === 'not-allowed' || e.error === 'service-not-allowed' || e.error === 'audio-capture') micOK = false;
+    };
+    r.onend = () => {
+      if (listen !== L) return;
+      rec = null;
+      if (L.interim) { for (let k = 0; k < 3; k++) L.finals[k].push(L.interim); L.interim = ''; }
+      if (L.wantStop || L.problem || L.restarts >= 60) { finishListening(L); return; }
+      L.restarts++;
+      setTimeout(() => { if (listen === L && !L.wantStop) openRec(L); }, 200);
     };
     rec = r;
-    test.listening = true;
-    test.note = '';
     r.start();
   } catch (e) {
-    micOK = false;
     rec = null;
-    test.listening = false;
-    test.note = NO_MIC;
+    if (L.restarts === 0) { micOK = false; L.problem = 'not-allowed'; }
+    finishListening(L);
   }
-  renderTest();
 }
-function micButton(q) {
+function finishSoon(L) {
+  if (listen !== L || L.wantStop) return;
+  L.wantStop = true;
+  clearTimeout(L.quiet);
+  if (rec) {
+    try { rec.stop(); } catch (e) {}
+    L.fallback = setTimeout(() => finishListening(L), 1500);
+  } else finishListening(L);
+}
+function finishListening(L) {
+  if (listen !== L) return;
+  listen = null;
+  clearListenTimers(L);
+  if (rec) { try { rec.onend = null; rec.abort(); } catch (e) {} rec = null; }
+  test.listening = false;
+  const q = L.q;
+  if (!test.on || test.over || test.list[test.i] !== q.n) return;
+  if (L.interim) { for (let k = 0; k < 3; k++) L.finals[k].push(L.interim); L.interim = ''; }
+  const texts = L.finals.map((a) => a.join(' ').trim());
+  const said = texts[0];
+  if (!said) {
+    test.note = !micOK ? NO_MIC : L.problem ? MIC_TROUBLE : 'I did not hear anything. Take your time, then tap the microphone and try again.';
+    renderTest();
+    return;
+  }
+  const v = judge(q, texts);
+  test.tries++;
+  test.note = '';
+  if (v.level === 'close' && test.tries < 3) {
+    /* like an officer asking her to say it again */
+    test.almost = { text: said, got: v.got, need: v.need };
+    renderTest();
+    if (store.speak) speak('Almost. Please say the complete answer.');
+    return;
+  }
+  test.almost = null;
+  test.heard = { text: said, level: v.level };
+  test.revealed = true;
+  renderTest();
+  if (store.speak) speak(v.level === 'exact' ? 'That is right.' : v.level === 'close' ? 'Almost, but that is not the official wording.' : 'That is not the answer.');
+}
+function micButton(q, label) {
   const b = el('button', { class: 'btn primary with-icon', type: 'button', onclick: () => startListening(q) });
   b.innerHTML = MIC;
-  b.append('Say my answer');
+  b.append(label);
   return b;
 }
 
 /* ---------- practice test ---------- */
 const NEED_RIGHT = 12, MAX_WRONG = 9, ASKED = 20;
-const test = { on: false, mode: 'say', list: [], i: 0, right: 0, wrong: 0, missed: [], revealed: false, over: false, opts: null, picked: null, heard: null, listening: false, note: '' };
+const test = { on: false, mode: 'say', list: [], i: 0, right: 0, wrong: 0, missed: [], revealed: false, over: false, opts: null, picked: null, heard: null, listening: false, note: '', tries: 0, almost: null };
 const testView = document.getElementById('view-test');
 
 function startTest(mode) {
-  Object.assign(test, { on: true, mode: mode === 'mc' ? 'mc' : 'say', list: shuffle(QS.map((q) => q.n)).slice(0, ASKED), i: 0, right: 0, wrong: 0, missed: [], revealed: false, over: false, opts: null, picked: null, heard: null, listening: false, note: '' });
+  Object.assign(test, { on: true, mode: mode === 'mc' ? 'mc' : 'say', list: shuffle(QS.map((q) => q.n)).slice(0, ASKED), i: 0, right: 0, wrong: 0, missed: [], revealed: false, over: false, opts: null, picked: null, heard: null, listening: false, note: '', tries: 0, almost: null });
   if (test.mode === 'mc') test.opts = buildOptions(BY_N[test.list[0]]);
   renderTest();
   if (store.speak) speak(BY_N[test.list[0]].q);
@@ -870,6 +953,8 @@ function markTest(ok) {
     test.picked = null;
     test.heard = null;
     test.note = '';
+    test.tries = 0;
+    test.almost = null;
     test.opts = test.mode === 'mc' ? buildOptions(BY_N[test.list[test.i]]) : null;
   }
   save();
@@ -892,7 +977,7 @@ function renderTest() {
         el('h2', { class: 'title', text: 'Practice test' }),
         el('p', { text: 'At the interview, the officer asks up to 20 questions out loud. You pass when you get 12 right. The officer stops at 12 right or 9 wrong.' }),
         el('p', { text: micOK
-          ? 'Spoken test: tap the microphone and say your answer, like at the real interview. The page listens for the key words and tells you if it heard a correct answer. It can mishear, so you can always correct it.'
+          ? 'Spoken test: tap the microphone and say your answer, like at the real interview. The page waits while you think, and it wants the complete official answer. If you are close, it asks you to say it again. It can mishear, so you can always correct it.'
           : 'Spoken test: say your answer out loud, tap "Show answer", then mark yourself right or wrong. This is how the real interview works.' }),
         el('p', { text: 'Multiple choice test: pick one of four answers. It is a good warm-up, but the real test has no choices to pick from.' }),
         canSpeak && el('label', { class: 'check', for: 'speakBox' },
@@ -955,21 +1040,36 @@ function renderTest() {
     const card = cardFor(q, false);
     if (test.listening) {
       card.append(el('div', { class: 'heard' },
-        el('p', { class: 'label', text: 'Listening' }),
-        el('p', { id: 'heardLive', class: 'heard-text', text: '…' })));
-      actions.append(el('button', { class: 'btn primary', type: 'button', text: 'I am done talking', onclick: () => { if (rec) { try { rec.stop(); } catch (e) {} } } }));
+        el('p', { class: 'label listening', text: 'Listening' }),
+        el('p', { id: 'heardLive', class: 'heard-text', text: (listen && heardSoFar(listen)) || '…' }),
+        el('p', { class: 'muted small', text: 'Take your time. I will wait while you think. Tap the button when you have finished your answer.' })));
+      actions.append(el('button', { class: 'btn primary', type: 'button', text: 'I am done', onclick: () => { if (listen) finishSoon(listen); } }));
     } else {
+      const almost = test.almost;
+      if (almost) {
+        card.append(el('div', { class: 'heard' },
+          el('p', { class: 'result-line almost', role: 'status', text: 'Almost.' }),
+          el('p', { class: 'muted small', text: 'I heard: “' + almost.text + '”' }),
+          el('p', { text: almost.need > 1
+            ? 'I heard ' + almost.got + ' complete ' + (almost.got === 1 ? 'answer' : 'answers') + '. This question needs ' + almost.need + '. Say all ' + almost.need + ' again.'
+            : 'Say the complete answer, in the official words.' })));
+      }
       if (test.note) card.append(el('p', { class: 'note', role: 'status', text: test.note }));
-      if (micOK) actions.append(micButton(q));
-      actions.append(el('button', { class: 'btn ' + (micOK ? 'quiet' : 'primary'), type: 'button', text: 'Show answer', onclick: () => { test.revealed = true; renderTest(); } }));
+      if (micOK) actions.append(micButton(q, almost ? 'Say it again' : 'Say my answer'));
+      actions.append(el('button', { class: 'btn ' + (micOK ? 'quiet' : 'primary'), type: 'button', text: 'Show answer', onclick: () => {
+        if (almost) { test.heard = { text: almost.text, level: 'close' }; test.almost = null; }
+        test.revealed = true;
+        renderTest();
+      } }));
     }
     testView.append(score, card);
   } else if (test.heard) {
-    const ok = test.heard.ok;
+    const h = test.heard, ok = h.level === 'exact';
     const card = cardFor(q, true);
     card.querySelector('.answer-block').prepend(
-      el('p', { class: 'result-line ' + (ok ? 'ok' : 'no'), role: 'status', text: ok ? 'That is right!' : 'I did not hear a correct answer.' }),
-      el('p', { class: 'muted small', text: 'I heard: “' + test.heard.text + '”' }));
+      el('p', { class: 'result-line ' + (ok ? 'ok' : h.level === 'close' ? 'almost' : 'no'), role: 'status',
+        text: ok ? 'That is right!' : h.level === 'close' ? 'Almost, but not the official wording.' : 'That is not the answer.' }),
+      el('p', { class: 'muted small', text: 'I heard: “' + h.text + '”' }));
     testView.append(score, card);
     actions.append(
       el('button', { class: 'btn primary', type: 'button', text: 'Next question', onclick: () => markTest(ok) }),
