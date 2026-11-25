@@ -815,7 +815,8 @@ function judge(q, texts) {
 const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
 let micOK = !!SR;
 try { if (micOK && document.featurePolicy && !document.featurePolicy.allowsFeature('microphone')) micOK = false; } catch (e) {}
-let rec = null, listen = null;
+let rec = null, listen = null, canReopen = true;
+const MIC_DENIED = 'The phone did not let this page use the microphone. Allow the microphone for this page in the browser settings, then tap "Say my answer" again. You can also type your answer.';
 const QUIET_MS = 7000, MAX_MS = 120000;
 const MIC = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3" fill="currentColor"/><path d="M6 11a6 6 0 0 0 12 0M12 17v4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
 const NO_MIC = 'The microphone is not available here. Tap "Show answer" and mark yourself.';
@@ -865,13 +866,14 @@ function openRec(L) {
     r.onerror = (e) => {
       if (e.error === 'no-speech' || e.error === 'aborted') return;   /* a pause to think is not a problem */
       L.problem = e.error || 'error';
-      if (e.error === 'not-allowed' || e.error === 'service-not-allowed' || e.error === 'audio-capture') micOK = false;
+      /* Some phones refuse to re-open the microphone unless she taps. Stop re-opening, but keep the button. */
+      if (L.restarts > 0 && (e.error === 'not-allowed' || e.error === 'service-not-allowed')) canReopen = false;
     };
     r.onend = () => {
       if (listen !== L) return;
       rec = null;
       if (L.interim) { for (let k = 0; k < 3; k++) L.finals[k].push(L.interim); L.interim = ''; }
-      if (L.wantStop || L.problem || L.restarts >= 60) { finishListening(L); return; }
+      if (L.wantStop || L.problem || !canReopen || L.restarts >= 60) { finishListening(L); return; }
       L.restarts++;
       setTimeout(() => { if (listen === L && !L.wantStop) openRec(L); }, 200);
     };
@@ -879,7 +881,7 @@ function openRec(L) {
     r.start();
   } catch (e) {
     rec = null;
-    if (L.restarts === 0) { micOK = false; L.problem = 'not-allowed'; }
+    if (L.restarts === 0) L.problem = 'start-failed'; else canReopen = false;
     finishListening(L);
   }
 }
@@ -904,7 +906,9 @@ function finishListening(L) {
   const texts = L.finals.map((a) => a.join(' ').trim());
   const said = texts[0];
   if (!said) {
-    test.note = !micOK ? NO_MIC : L.problem ? MIC_TROUBLE : 'I did not hear anything. Take your time, then tap the microphone and try again.';
+    const first = L.restarts === 0;
+    const denied = first && ['not-allowed', 'service-not-allowed', 'audio-capture', 'start-failed'].includes(L.problem);
+    test.note = denied ? MIC_DENIED : (first && L.problem) ? MIC_TROUBLE : 'I did not hear anything. Take your time, then tap the microphone and try again.';
     renderTest();
     return;
   }
@@ -1001,6 +1005,7 @@ function renderTest() {
         el('p', { text: micOK
           ? 'Spoken test: tap the microphone and say your answer, like at the real interview. The page waits while you think, and it wants the complete official answer. If you are close, it asks you to say it again. If the phone hears a word wrong, you can fix it by typing and check again.'
           : 'Spoken test: say your answer out loud, like at the real interview. Then type it to have it checked, or tap "Show answer" and mark yourself.' }),
+        !micOK && /github\.io$/.test(location.hostname) && el('p', { class: 'note', text: 'This browser cannot listen to you. To speak your answers, open this page in Chrome on an Android phone or in Safari on an iPhone.' }),
         el('p', { text: 'Multiple choice test: pick one of four answers. It is a good warm-up, but the real test has no choices to pick from.' }),
         canSpeak && el('label', { class: 'check', for: 'speakBox' },
           el('input', { type: 'checkbox', id: 'speakBox', checked: store.speak, onchange: (e) => { store.speak = e.target.checked; save(); } }),
