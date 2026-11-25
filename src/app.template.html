@@ -912,17 +912,20 @@ function finishListening(L) {
     renderTest();
     return;
   }
-  evaluate(q, texts, said);
+  /* Nothing is judged yet. She sees what the phone heard and can fix it before she submits. */
+  test.note = '';
+  test.draft = { text: said, level: null, got: 0, need: q.need || 1, mic: true, heard: said, alts: texts };
+  renderTest();
 }
 /* Judge what she said or typed. A miss is not final straight away: the phone may have heard her wrong,
    so she gets the words in a box she can fix, and can check again (three checks per question). */
 const MAX_TRIES = 3;
-function evaluate(q, texts, said) {
+function evaluate(q, texts, said, mic) {
   const v = judge(q, texts);
   test.tries++;
   test.note = '';
   if (v.level !== 'exact' && test.tries < MAX_TRIES) {
-    test.draft = { text: said, level: v.level, got: v.got, need: v.need };
+    test.draft = { text: said, level: v.level, got: v.got, need: v.need, mic: !!mic };
     renderTest();
     if (store.speak) speak(v.level === 'close' ? 'Almost. Please say the complete answer.' : 'I did not hear a correct answer.');
     return;
@@ -942,7 +945,9 @@ function checkTyped(q) {
     return;
   }
   stopSpeak();
-  evaluate(q, [text], text);
+  /* if she did not change what the phone heard, also consider the phone's other guesses at her words */
+  const d = test.draft || {};
+  evaluate(q, d.alts && text === d.heard ? d.alts : [text], text, d.mic);
 }
 function micButton(q, label, kind) {
   const b = el('button', { class: 'btn with-icon ' + (kind || 'primary'), type: 'button', onclick: () => { test.draft = null; startListening(q); } });
@@ -1003,7 +1008,7 @@ function renderTest() {
         el('h2', { class: 'title', text: 'Practice test' }),
         el('p', { text: 'At the interview, the officer asks up to 20 questions out loud. You pass when you get 12 right. The officer stops at 12 right or 9 wrong.' }),
         el('p', { text: micOK
-          ? 'Spoken test: tap the microphone and say your answer, like at the real interview. The page waits while you think, and it wants the complete official answer. If you are close, it asks you to say it again. If the phone hears a word wrong, you can fix it by typing and check again.'
+          ? 'Spoken test: tap the microphone and say your answer, like at the real interview. The page waits while you think, and it wants the complete official answer. You always see what the phone heard first, and you can fix it by typing before you tap "Check my answer". If you are close, it asks you to try again.'
           : 'Spoken test: say your answer out loud, like at the real interview. Then type it to have it checked, or tap "Show answer" and mark yourself.' }),
         !micOK && /github\.io$/.test(location.hostname) && el('p', { class: 'note', text: 'This browser cannot listen to you. To speak your answers, open this page in Chrome on an Android phone or in Safari on an iPhone.' }),
         el('p', { text: 'Multiple choice test: pick one of four answers. It is a good warm-up, but the real test has no choices to pick from.' }),
@@ -1095,10 +1100,11 @@ function renderTest() {
         d.level === 'close' && el('p', { text: d.need > 1
           ? 'I found ' + d.got + ' complete ' + (d.got === 1 ? 'answer' : 'answers') + '. This question needs ' + d.need + '.'
           : 'Give the complete answer, in the official words.' }),
-        el('label', { class: 'label', for: 'answerBox', text: d.level ? 'What I heard' : 'Your answer' }),
+        el('label', { class: 'label', for: 'answerBox', text: d.mic ? 'What I heard' : 'Your answer' }),
         box,
-        d.level && el('p', { class: 'muted small', text: 'If the phone heard a word wrong, tap the box and fix it. Then tap "Check my answer". ' +
-          (left === 1 ? 'You have 1 more check.' : 'You have ' + left + ' more checks.') })));
+        (d.mic || d.level) && el('p', { class: 'muted small', text:
+          (d.mic ? 'Check that this is what you said. Tap the box to fix any wrong words, then tap "Check my answer". ' : 'Fix your answer, then tap "Check my answer". ') +
+          (d.level ? (left === 1 ? 'You have 1 more check.' : 'You have ' + left + ' more checks.') : '') })));
       if (test.note) card.append(el('p', { class: 'note', role: 'status', text: test.note }));
       actions.append(el('button', { class: 'btn primary', type: 'button', text: 'Check my answer', onclick: () => checkTyped(q) }));
       actions.append(el('div', { class: 'row' },
